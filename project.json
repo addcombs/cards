@@ -1,0 +1,8 @@
+{
+  "name": "cards",
+  "developerName": "Adam Combs",
+  "aws": { "profile": "default", "region": "us-east-2" },
+  "domain": { "apex": "acombs-dev.com", "host": "cards.acombs-dev.com", "dnsProvider": "Squarespace" },
+  "cognito": { "domainPrefix": "cards-acombs" },
+  "theme": { "primary": "#6A4CDB", "secondary": "#F2735A" }
+}
