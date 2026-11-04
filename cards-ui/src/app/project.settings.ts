@@ -5,9 +5,9 @@ export const PROJECT_SETTINGS = {
   developerName: 'Adam Combs',
   apiUrl: 'https://api.cards.acombs-dev.com',
   auth: {
-    userPoolId: '',
-    userPoolClientId: '',
-    domain: '',
+    userPoolId: 'us-east-2_tbL7X0zuE',
+    userPoolClientId: '4fmkh15shot64a3r6r174mjcr9',
+    domain: 'cards-acombs.auth.us-east-2.amazoncognito.com',
     redirectSignIn: ['http://localhost:4200/', 'https://cards.acombs-dev.com/'],
     redirectSignOut: ['http://localhost:4200/', 'https://cards.acombs-dev.com/'],
   },
