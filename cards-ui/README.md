@@ -8,7 +8,7 @@ filled with the theme's primary and secondary colors, so it follows light/dark m
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard cards explain the roles of the included technologies and are
 grouped into Front-end, Back-end, Cloud, and Tools tabs, also reachable from the side menu.
-The Material 3 palette is generated from primary `#6A4CDB` with secondary `#F2735A`
+The Material 3 palette is generated from primary `#DC143C` with secondary `#FFC0CB`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).
 
 Card logos are served locally from `public/logos`: most come from
