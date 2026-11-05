@@ -50,6 +50,8 @@ $names = [ordered]@{
 # Buckets include the account ID because S3 bucket names are global.
 function UiBucket($account) { "$app-ui-$account" }
 function DeployBucket($account) { "$app-deploy-$account" }
+# Card photos, served by the UI's distribution at https://<domain>/photos/ (create-photos-bucket.ps1).
+function PhotosBucket($account) { "$app-photos-$account" }
 
 $log = Join-Path $logs $LogName
 if (-not $AppendLog) { Set-Content $log "$app $Title $(Get-Date -Format s)" }
@@ -100,6 +102,7 @@ function Sync-UiConfig {
     "  appName: $(Ts $app),",
     "  developerName: $(Ts $project.developerName),",
     "  apiUrl: $(Ts "https://$apiDomain"),",
+    "  photosUrl: $(Ts "https://$domain/photos/"),",
     '  auth: {',
     "    userPoolId: $(Ts $ids.userPoolId),",
     "    userPoolClientId: $(Ts $ids.userPoolClientId),",

@@ -7,7 +7,9 @@ over a decorative inline SVG pixel mosaic (`src/app/theme/toolbar-background.ts`
 filled with the theme's primary and secondary colors, so it follows light/dark mode and brightness. The footer
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
-menu; each is empty for now.
+menu, each showing that sport's cards from `/api/cards`. A card shows the front of its PSA slab, and
+clicking it flips it to the back. The photos load from `photosUrl` in `src/app/project.settings.ts`:
+the UI's own host at `/photos/`, which CloudFront serves from the photo bucket.
 The Material 3 palette is generated from primary and secondary `#DC143C`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).
 

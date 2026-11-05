@@ -29,7 +29,7 @@ public class AccountSecurityConfig {
     @Order(1)
     SecurityFilterChain accountSecurity(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/api/account", "/api/account/**")
+                .securityMatcher("/api/account", "/api/account/**", "/api/cards", "/api/cards/**")
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 // Stateless bearer-token API: no session exists, so skip session-fixation protection.
@@ -54,7 +54,7 @@ public class AccountSecurityConfig {
     }
 
     // The deployed UI is served from a different host than the API, so the browser needs CORS
-    // approval for the account and health calls. No origins configured means no cross-origin access.
+    // approval for the account, card and health calls. No origins configured means no cross-origin access.
     @Bean
     CorsConfigurationSource corsConfigurationSource(@Value("${app.cors.allowed-origins:}") List<String> allowedOrigins) {
         CorsConfiguration cors = new CorsConfiguration();
@@ -65,6 +65,7 @@ public class AccountSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/account", cors);
         source.registerCorsConfiguration("/api/account/**", cors);
+        source.registerCorsConfiguration("/api/cards", cors);
         source.registerCorsConfiguration("/actuator/health", cors);
         return source;
     }

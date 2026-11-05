@@ -1,8 +1,8 @@
 # cards API
 
-Spring Boot account API for cards (UI: `../cards-ui`), backed by the `users` table in the app's own schema of a shared PostgreSQL database (`DATABASE_SCHEMA`; `cards` for cards). Hibernate validates the table at startup and does not create or modify database objects; `..\scripts\apply-migrations.ps1` does.
+Spring Boot account and card API for cards (UI: `../cards-ui`), backed by the `users` and `cards` tables in the app's own schema of a shared PostgreSQL database (`DATABASE_SCHEMA`; `cards` for cards). Hibernate validates the tables at startup and does not create or modify database objects; `..\scripts\apply-migrations.ps1` does.
 
-All application endpoints are under `/api/account` and require a verified Cognito ID token. The health check and API documentation endpoints are public.
+All application endpoints are under `/api/account` and `/api/cards` and require a verified Cognito ID token. The health check and API documentation endpoints are public.
 
 ## Requirements
 
@@ -20,6 +20,8 @@ Each app has its own schema in the shared database: `database.schema` in `..\pro
 SELECT lower(email), count(*) FROM <schema>.users
 WHERE email IS NOT NULL GROUP BY lower(email) HAVING count(*) > 1;
 ```
+
+`002-cards.sql` creates the `cards` table and fills it with the collection: sport, year, set, card number, player, variety, PSA grade and cert number, and the photo ID that names the card's photos in the photo bucket (`..\scripts\upload-card-photos.ps1`). To add or correct a card, edit its row there and re-run the migrations; listed cards are updated in place.
 
 Nothing is applied automatically: the application cannot start against an out-of-date schema because Hibernate validates it (`ddl-auto=validate`).
 
@@ -65,7 +67,7 @@ The unit tests do not need a database or Cognito. Running the application requir
 With the API running locally, open Swagger UI at
 `http://localhost:8080/swagger-ui.html` or retrieve the generated OpenAPI JSON
 at `http://localhost:8080/v3/api-docs`. Documentation covers `/api/account`
-only. In Swagger UI, use **Authorize** with a valid Cognito ID token to call it.
+and `/api/cards` only. In Swagger UI, use **Authorize** with a valid Cognito ID token to call it.
 Both documentation endpoints are public; when deployed they are served at the API's own
 host, e.g. `https://api.cards.acombs-dev.com/swagger-ui.html`.
 
@@ -73,5 +75,6 @@ host, e.g. `https://api.cards.acombs-dev.com/swagger-ui.html`.
 |---|---|---|
 | `GET` | `/api/account` | Get current user's details, linking an existing row by verified email if necessary; `404` if absent |
 | `PUT` | `/api/account` | Create or update current user's details |
+| `GET` | `/api/cards` | List the cards, oldest first, each with its sport and photo ID |
 
 The account endpoint takes `firstName` and `lastName` (required, maximum 100 characters) and `phoneNumber` (optional, maximum 40 characters). It obtains email and subject exclusively from the verified ID token; the client cannot change email. IDs and account audit fields are system-managed. A row linked to a different subject or a changed verified email causes `409` and requires administrative resolution.

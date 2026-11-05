@@ -167,7 +167,39 @@
         @for (sport of sports; track sport.label) {
           <mat-tab [label]="sport.label">
             <section class="sport-panel" [attr.aria-label]="sport.label + ' cards'">
-              <p>No {{ sport.label.toLowerCase() }} cards yet.</p>
+              @if (cards.state() === 'loading' || cards.state() === 'idle') {
+                <p class="sport-message" aria-live="polite">Loading cards...</p>
+              } @else if (cards.state() === 'error') {
+                <p class="auth-error" role="alert">{{ cards.error() }}</p>
+                <button mat-button type="button" (click)="cards.load()">Try again</button>
+              } @else {
+                @for (card of cardsBySport().get(sport.label); track card.photoId) {
+                  <figure class="sport-card">
+                    <button
+                      type="button"
+                      class="card-flip"
+                      [class.flipped]="flipped().has(card.photoId)"
+                      [attr.aria-pressed]="flipped().has(card.photoId)"
+                      [attr.aria-label]="(flipped().has(card.photoId) ? 'Show the front of ' : 'Show the back of ') + card.player + ', ' + cardTitle(card)"
+                      (click)="toggleFlip(card)"
+                    >
+                      <span class="card-faces">
+                        <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" alt="" loading="lazy" width="600" height="1000" />
+                        <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" alt="" loading="lazy" width="600" height="1000" />
+                      </span>
+                    </button>
+                    <figcaption>
+                      <span class="card-player">{{ card.player }}</span>
+                      <span class="card-title">{{ cardTitle(card) }}@if (card.variety) { · {{ card.variety }}}</span>
+                      @if (card.grade) {
+                        <span class="card-grade">PSA {{ card.grade }}</span>
+                      }
+                    </figcaption>
+                  </figure>
+                } @empty {
+                  <p class="sport-message">No {{ sport.label.toLowerCase() }} cards yet.</p>
+                }
+              }
             </section>
           </mat-tab>
         }

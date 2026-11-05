@@ -42,6 +42,11 @@ from the new folder:
 9. Commit `src\app\project.settings.ts` (step 1 filled in its Cognito IDs), push to a new GitHub
    repository as the git origin, run `scripts\create-github-deploy-role.ps1`, and add the role ARN
    it prints as the repository's Actions variable `AWS_DEPLOY_ROLE_ARN`
+10. `scripts\create-photos-bucket.ps1` - the card-photo bucket, served at `https://<host>/photos/`
+
+To add cards, put PSA's photo downloads in `photos\` (git-ignored), run
+`scripts\upload-card-photos.ps1`, add a row per card to `<app>-api\db\migrations\002-cards.sql`, and
+run `scripts\apply-migrations.ps1`.
 
 After that, each push to `main` deploys; `scripts\build-lambda.ps1` then `scripts\deploy-api.ps1`,
 and `scripts\deploy-ui.ps1` still deploy by hand, and `scripts\test-all.ps1` runs both apps' tests.

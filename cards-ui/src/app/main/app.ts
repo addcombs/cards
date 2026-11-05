@@ -17,6 +17,7 @@ import { RegistrationComponent } from '../auth/registration';
 import { AccountService } from './account/account.service';
 import { AccountDetailsComponent } from './account/account-details';
 import { ApiStatusService } from './api-status/api-status.service';
+import { Card, CardService, cardPhotoUrl } from './cards/card.service';
 import { apiUrl } from '../api-url';
 import { APP_DISPLAY_NAME, DEVELOPER_NAME } from './app-name';
 import { AboutDialogComponent } from './about/about-dialog';
@@ -68,6 +69,15 @@ export class App {
     { label: 'Hockey', icon: 'sports_hockey' },
   ];
   protected readonly selectedSport = signal(0);
+  protected readonly cards = inject(CardService);
+  protected readonly cardsBySport = computed(() => {
+    const bySport = new Map<string, Card[]>(this.sports.map((sport) => [sport.label, []]));
+    for (const card of this.cards.cards()) bySport.get(card.sport)?.push(card);
+    return bySport;
+  });
+  /** Photo IDs of the cards turned over to show their backs. */
+  protected readonly flipped = signal<ReadonlySet<string>>(new Set());
+  protected readonly cardPhotoUrl = cardPhotoUrl;
   private readonly dialog = inject(MatDialog);
   private accountDialog: MatDialogRef<AccountDetailsComponent> | null = null;
 
@@ -77,8 +87,11 @@ export class App {
       untracked(() => {
         if (status === 'signedIn') {
           void this.account.load();
+          void this.cards.load();
         } else {
           this.account.reset();
+          this.cards.reset();
+          this.flipped.set(new Set());
         }
       });
     });
@@ -133,6 +146,18 @@ export class App {
   protected showSport(index: number): void {
     this.selectedSport.set(index);
     if (!this.isWide()) this.sidenavOpened.set(false);
+  }
+
+  protected toggleFlip(card: Card): void {
+    this.flipped.update((flipped) => {
+      const next = new Set(flipped);
+      if (!next.delete(card.photoId)) next.add(card.photoId);
+      return next;
+    });
+  }
+
+  protected cardTitle(card: Card): string {
+    return `${card.year} ${card.setName} #${card.cardNumber}`;
   }
 
   protected openAbout(): void {

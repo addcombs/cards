@@ -4,6 +4,7 @@ export const PROJECT_SETTINGS = {
   appName: 'cards',
   developerName: 'Adam Combs',
   apiUrl: 'https://api.cards.acombs-dev.com',
+  photosUrl: 'https://cards.acombs-dev.com/photos/',
   auth: {
     userPoolId: 'us-east-2_tbL7X0zuE',
     userPoolClientId: '4fmkh15shot64a3r6r174mjcr9',

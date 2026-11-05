@@ -8,6 +8,8 @@ import { App } from './app';
 import { AuthService } from '../auth/auth.service';
 import { AccountService, AccountDetails } from './account/account.service';
 import { ApiStatusService } from './api-status/api-status.service';
+import { Card, CardService } from './cards/card.service';
+import { PROJECT_SETTINGS } from '../project.settings';
 import { BRIGHTNESS_STORAGE_KEY } from '../theme/theme.service';
 
 describe('App', () => {
@@ -33,6 +35,17 @@ describe('App', () => {
     save: vi.fn(),
   };
   const apiStatus = { status: signal<'checking' | 'up' | 'down'>('checking') };
+  const card = (photoId: string, sport: string, player: string, variety: string | null = null): Card => ({
+    photoId, certNumber: photoId, sport, year: 1992, setName: 'Topps Gold', cardNumber: '141', player, variety,
+    grade: 'EX-MT 6',
+  });
+  const cards = {
+    state: signal<'idle' | 'loading' | 'ready' | 'error'>('ready'),
+    cards: signal<Card[]>([]),
+    error: signal(''),
+    load: vi.fn(),
+    reset: vi.fn(),
+  };
 
   beforeEach(async () => {
     localStorage.clear();
@@ -47,6 +60,9 @@ describe('App', () => {
     account.saving.set(false);
     account.error.set('');
     apiStatus.status.set('checking');
+    cards.state.set('ready');
+    cards.cards.set([]);
+    cards.error.set('');
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [App],
@@ -55,6 +71,7 @@ describe('App', () => {
         { provide: AuthService, useValue: auth },
         { provide: AccountService, useValue: account },
         { provide: ApiStatusService, useValue: apiStatus },
+        { provide: CardService, useValue: cards },
         { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
       ],
     }).compileComponents();
@@ -109,6 +126,61 @@ describe('App', () => {
       const panel = fixture.nativeElement.querySelector(`section.sport-panel[aria-label="${label} cards"]`);
       expect(panel?.textContent?.trim()).toBe(`No ${label.toLowerCase()} cards yet.`);
     }
+  });
+
+  it('puts each card in its sport tab and flips it to the back when clicked', async () => {
+    cards.cards.set([
+      card('94481237', 'Basketball', 'Michael Jordan'),
+      card('97041266', 'Baseball', 'Derek Jeter', 'Rookie'),
+      card('94481240', 'Basketball', 'Kobe Bryant'),
+    ]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const players = (label: string): string[] => Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll(`section.sport-panel[aria-label="${label} cards"] .card-player`),
+    ).map((player) => player.textContent!.trim());
+    expect(players('Baseball')).toEqual(['Derek Jeter']);
+    const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
+    expect(baseball.querySelector('.card-title')?.textContent?.trim()).toBe('1992 Topps Gold #141 · Rookie');
+    expect(baseball.querySelector('.card-grade')?.textContent?.trim()).toBe('PSA EX-MT 6');
+
+    const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));
+    tabs[1].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(players('Basketball')).toEqual(['Michael Jordan', 'Kobe Bryant']);
+    const flip: HTMLButtonElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Basketball cards"] button.card-flip');
+    const [front, back] = Array.from<HTMLImageElement>(flip.querySelectorAll('img'));
+    expect(front.getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}94481237/front.jpg`);
+    expect(back.getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}94481237/back.jpg`);
+    expect(flip.getAttribute('aria-pressed')).toBe('false');
+    expect(flip.getAttribute('aria-label')).toBe('Show the back of Michael Jordan, 1992 Topps Gold #141');
+
+    flip.click();
+    fixture.detectChanges();
+    expect(flip.classList).toContain('flipped');
+    expect(flip.getAttribute('aria-pressed')).toBe('true');
+    expect(flip.getAttribute('aria-label')).toBe('Show the front of Michael Jordan, 1992 Topps Gold #141');
+    const other: HTMLButtonElement = fixture.nativeElement.querySelectorAll('section.sport-panel[aria-label="Basketball cards"] button.card-flip')[1];
+    expect(other.classList).not.toContain('flipped');
+
+    flip.click();
+    fixture.detectChanges();
+    expect(flip.classList).not.toContain('flipped');
+  });
+
+  it('loads the cards on sign-in and offers a retry when loading fails', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    expect(cards.load).toHaveBeenCalledOnce();
+    cards.state.set('error');
+    cards.error.set('Could not load the cards. Please try again.');
+    fixture.detectChanges();
+    const panel: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
+    expect(panel.querySelector('[role="alert"]')?.textContent?.trim()).toBe('Could not load the cards. Please try again.');
+    panel.querySelector<HTMLButtonElement>('button')!.click();
+    expect(cards.load).toHaveBeenCalledTimes(2);
   });
 
   it('selects sport tabs from the side menu', async () => {
