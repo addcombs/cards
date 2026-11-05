@@ -39,6 +39,7 @@ $names = [ordered]@{
   Function     = "$app-api"
   Role         = "$app-api-lambda"
   DeployKey    = "$app-api-lambda.zip"
+  GitHubDeployRole = "$app-github-deploy"
   UserPool     = "$app-users"
   UserClient   = "$app-ui"
   Oac          = "$app-ui-oac"

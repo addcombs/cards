@@ -10,8 +10,11 @@ domain prefix and theme colors. The PowerShell scripts in `scripts\` derive ever
 name from it. Their logs go to `logs\` and the IDs AWS assigns to `state\` (both git-ignored).
 
 GitHub Actions (`.github/workflows/ci.yml`) builds and tests the UI and the API on every push to
-`main` and every pull request, and checks the theme palettes match `project.json`. It does not
-deploy; that stays with the scripts.
+`main` and every pull request, and checks the theme palettes match `project.json`. Pushes to `main`
+that pass then deploy the UI and the API code, through an IAM role made by
+`scripts\create-github-deploy-role.ps1` (step 9 below). The deploy never changes the function's
+settings, so no secrets are stored in GitHub; after changing `.env` or the Cognito pool, run
+`scripts\deploy-api.ps1` again.
 
 ## Create a new app
 
@@ -36,6 +39,9 @@ from the new folder:
    `scripts\create-api-cloudfront.ps1`, `scripts\deploy-ui.ps1`
 8. At the DNS provider: CNAMEs for the host and `api.` host to the CloudFront domains the scripts
    print
+9. Commit `src\app\project.settings.ts` (step 1 filled in its Cognito IDs), push to a new GitHub
+   repository as the git origin, run `scripts\create-github-deploy-role.ps1`, and add the role ARN
+   it prints as the repository's Actions variable `AWS_DEPLOY_ROLE_ARN`
 
-After that, `scripts\build-lambda.ps1` then `scripts\deploy-api.ps1`, and `scripts\deploy-ui.ps1`
-deploy changes, and `scripts\test-all.ps1` runs both apps' tests.
+After that, each push to `main` deploys; `scripts\build-lambda.ps1` then `scripts\deploy-api.ps1`,
+and `scripts\deploy-ui.ps1` still deploy by hand, and `scripts\test-all.ps1` runs both apps' tests.
