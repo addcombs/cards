@@ -23,8 +23,8 @@ jobs:
     env:
       NG_CLI_ANALYTICS: 'false'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -36,6 +36,8 @@ jobs:
           secondary=$(jq -r .theme.secondary ../project.json)
           grep -qF "generated from primary: $primary, secondary: $secondary" src/app/theme/generated_theme-colors.scss \
             || { echo "::error::Theme palettes are not from project.json's colors. Run scripts\\start-all.ps1 to regenerate them."; exit 1; }
+      # package.json pins npm 11 (packageManager); Node 22's npm 10 rejects the lock file.
+      - run: npm install -g npm@11.6.1
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - run: npm test -- --watch=false
@@ -46,8 +48,8 @@ jobs:
       run:
         working-directory: cards-api
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
