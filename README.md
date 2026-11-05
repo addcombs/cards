@@ -6,8 +6,12 @@ https://cards.acombs-dev.com and https://api.cards.acombs-dev.com. See each fold
 README for details.
 
 `project.json` holds the only per-app settings: name, AWS profile and region, domain, Cognito
-domain prefix and theme colours. The PowerShell scripts in `scripts\` derive every AWS resource
+domain prefix and theme colors. The PowerShell scripts in `scripts\` derive every AWS resource
 name from it. Their logs go to `logs\` and the IDs AWS assigns to `state\` (both git-ignored).
+
+GitHub Actions (`.github/workflows/ci.yml`) builds and tests the UI and the API on every push to
+`main` and every pull request, and checks the theme palettes match `project.json`. It does not
+deploy; that stays with the scripts.
 
 ## Create a new app
 
@@ -16,14 +20,14 @@ name from it. Their logs go to `logs\` and the IDs AWS assigns to `state\` (both
 ```
 
 copies this project to `..\project-1` with the folders, Java package, names, host
-(`project-1.acombs-dev.com` unless `-HostName` is given), Cognito prefix, schema and colours
+(`project-1.acombs-dev.com` unless `-HostName` is given), Cognito prefix, schema and colors
 renamed, writes its `.env` with the shared database login, and starts a git repository. Then run,
 from the new folder:
 
 1. `scripts\create-cognito-pool.ps1` - the app's user pool, client and sign-in domain
 2. `scripts\apply-migrations.ps1` - its schema and tables in the shared database
 3. `scripts\start-all.ps1` - theme palettes, build, tests, and the app at http://localhost:4200/
-4. `scripts\brand-managed-login.ps1` - the sign-in page in the app's colours
+4. `scripts\brand-managed-login.ps1` - the sign-in page in the app's colors
 5. `scripts\build-lambda.ps1`, `scripts\deploy-api.ps1`, then `scripts\create-function-url.ps1` -
    the API on Lambda
 6. `scripts\request-certificate.ps1` - add the CNAMEs it prints at the DNS provider and re-run it

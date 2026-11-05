@@ -1,0 +1,55 @@
+# Builds and tests the UI and the API on every push and pull request, as scripts\start-all.ps1 does
+# locally. Nothing here touches AWS; deploying stays with the scripts in scripts\.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cards-ui
+    env:
+      NG_CLI_ANALYTICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cards-ui/package-lock.json
+      # start-all regenerates the palettes when project.json's colors change; fail if that was skipped.
+      - name: Check theme palettes match project.json
+        run: |
+          primary=$(jq -r .theme.primary ../project.json)
+          secondary=$(jq -r .theme.secondary ../project.json)
+          grep -qF "generated from primary: $primary, secondary: $secondary" src/app/theme/generated_theme-colors.scss \
+            || { echo "::error::Theme palettes are not from project.json's colors. Run scripts\\start-all.ps1 to regenerate them."; exit 1; }
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm test -- --watch=false
+
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cards-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - run: mvn --batch-mode --no-transfer-progress verify
