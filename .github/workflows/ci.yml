@@ -110,6 +110,10 @@ jobs:
           aws lambda update-alias --function-name "$APP-api" --name live --function-version "$version" \
             --query AliasArn --output text
           echo "::notice::API version $version is live."
+      - name: Check the live API
+        run: |
+          domain=$(jq -r .domain.host ../project.json)
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 "https://api.$domain/actuator/health"
 
   deploy-ui:
     needs: [ui, api]
@@ -151,6 +155,10 @@ jobs:
             --content-type text/html --only-show-errors
           dist_id=$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Aliases.Items && contains(Aliases.Items, '$DOMAIN')].Id | [0]" --output text)
-          aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / \
-            --query Invalidation.Id --output text
-          echo "::notice::Deployed https://$DOMAIN/ (CloudFront takes a minute or two to refresh)."
+          id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / \
+            --query Invalidation.Id --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$dist_id" --id "$id"
+      - name: Check the live site
+        run: |
+          curl --fail --silent --show-error --output /dev/null "https://$DOMAIN/"
+          echo "::notice::Deployed https://$DOMAIN/"

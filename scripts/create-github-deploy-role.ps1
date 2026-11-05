@@ -11,8 +11,13 @@ $roleName = $names.GitHubDeployRole
 $origin = & git -C $root remote get-url origin
 if ($origin -notmatch 'github\.com[:/]([^/]+/[^/]+?)(\.git)?$') { Fail "git origin '$origin' is not a GitHub repository." }
 $repo = $Matches[1]
+# GitHub's tokens name the repository with its owner's and its own IDs, e.g.
+# repo:addcombs@9554404/cards@1446279513, so the trust policy must too.
+try { $info = Invoke-RestMethod "https://api.github.com/repos/$repo" -Headers @{ 'User-Agent' = $app } }
+catch { Fail "could not look up $repo on GitHub: $($_.Exception.Message)" }
+$subject = "repo:$($info.owner.login)@$($info.owner.id)/$($info.name)@$($info.id):ref:refs/heads/main"
 $account = Invoke-AwsCli @('sts','get-caller-identity','--query','Account','--output','text')
-Step "repository: $repo, account: $account"
+Step "repository: $repo, account: $account, token subject: $subject"
 
 # --- GitHub's OIDC provider (one per account, shared by every app) ---
 $providerHost = 'token.actions.githubusercontent.com'
@@ -27,7 +32,7 @@ $trust = Write-Json (Join-Path $logs 'github-deploy-trust.json') @{
   Version = '2012-10-17'
   Statement = @(@{
     Effect = 'Allow'; Principal = @{ Federated = $provider }; Action = 'sts:AssumeRoleWithWebIdentity'
-    Condition = @{ StringEquals = @{ "${providerHost}:aud" = 'sts.amazonaws.com'; "${providerHost}:sub" = "repo:${repo}:ref:refs/heads/main" } }
+    Condition = @{ StringEquals = @{ "${providerHost}:aud" = 'sts.amazonaws.com'; "${providerHost}:sub" = $subject } }
   })
 }
 $roleArn = Invoke-AwsCli @('iam','get-role','--role-name',$roleName,'--query','Role.Arn','--output','text') -AllowFail -Quiet
