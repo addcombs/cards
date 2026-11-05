@@ -55,7 +55,7 @@ $policy = Write-Json (Join-Path $logs 'github-deploy-policy.json') @{
   Statement = @(
     @{ Sid = 'UiList'; Effect = 'Allow'; Action = 's3:ListBucket'; Resource = "arn:aws:s3:::$uiBucket" },
     @{ Sid = 'UiWrite'; Effect = 'Allow'; Action = @('s3:PutObject','s3:DeleteObject'); Resource = "arn:aws:s3:::$uiBucket/*" },
-    @{ Sid = 'UiRefresh'; Effect = 'Allow'; Action = 'cloudfront:CreateInvalidation'; Resource = "arn:aws:cloudfront::${account}:distribution/$distId" },
+    @{ Sid = 'UiRefresh'; Effect = 'Allow'; Action = @('cloudfront:CreateInvalidation','cloudfront:GetInvalidation'); Resource = "arn:aws:cloudfront::${account}:distribution/$distId" },
     @{ Sid = 'FindDistribution'; Effect = 'Allow'; Action = 'cloudfront:ListDistributions'; Resource = '*' },
     # Lambda reads the uploaded zip with the caller's permissions.
     @{ Sid = 'ApiUpload'; Effect = 'Allow'; Action = @('s3:PutObject','s3:GetObject'); Resource = "arn:aws:s3:::$(DeployBucket $account)/$($names.DeployKey)" },
