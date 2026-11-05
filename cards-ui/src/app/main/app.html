@@ -53,15 +53,15 @@
         <mat-icon matListItemIcon>home</mat-icon>
         <span matListItemTitle>Home</span>
       </a>
-      @for (group of technologyGroups; track group.label; let i = $index) {
+      @for (sport of sports; track sport.label; let i = $index) {
         <a
           mat-list-item
           href="#"
-          [activated]="selectedTechnologyGroup() === i"
-          (click)="$event.preventDefault(); showTechnologyGroup(i)"
+          [activated]="selectedSport() === i"
+          (click)="$event.preventDefault(); showSport(i)"
         >
-          <mat-icon matListItemIcon>{{ group.icon }}</mat-icon>
-          <span matListItemTitle>{{ group.label }}</span>
+          <mat-icon matListItemIcon>{{ sport.icon }}</mat-icon>
+          <span matListItemTitle>{{ sport.label }}</span>
         </a>
       }
     </mat-nav-list>
@@ -161,28 +161,13 @@
       } @else if (account.state() === 'ready') {
         <h1 class="welcome-title">Welcome to {{ appName }}@if (account.details()?.firstName || auth.firstName()) {, {{ account.details()?.firstName || auth.firstName() }}}!</h1>
       }
-      <mat-tab-group class="technology-tabs" mat-stretch-tabs="false" dynamicHeight aria-label="Technologies"
-        [selectedIndex]="selectedTechnologyGroup()"
-        (selectedIndexChange)="selectedTechnologyGroup.set($event)">
-        @for (group of technologyGroups; track group.label) {
-          <mat-tab [label]="group.label">
-            <section class="card-grid" [attr.aria-label]="group.label + ' technologies'">
-              @for (technology of group.technologies; track technology.name) {
-                <mat-card appearance="outlined" [style.--card-index]="$index">
-                  <mat-card-header>
-                    @if (technology.logo) {
-                      <img mat-card-avatar class="technology-logo" [src]="technology.logo" alt="" width="48" height="48" loading="lazy" />
-                    } @else {
-                      <mat-icon mat-card-avatar class="technology-icon" aria-hidden="true">{{ technology.icon }}</mat-icon>
-                    }
-                    <mat-card-title>{{ technology.name }}</mat-card-title>
-                    <mat-card-subtitle>{{ technology.description }}</mat-card-subtitle>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <p>{{ technology.usage }}</p>
-                  </mat-card-content>
-                </mat-card>
-              }
+      <mat-tab-group class="sport-tabs" mat-stretch-tabs="false" dynamicHeight aria-label="Sports"
+        [selectedIndex]="selectedSport()"
+        (selectedIndexChange)="selectedSport.set($event)">
+        @for (sport of sports; track sport.label) {
+          <mat-tab [label]="sport.label">
+            <section class="sport-panel" [attr.aria-label]="sport.label + ' cards'">
+              <p>No {{ sport.label.toLowerCase() }} cards yet.</p>
             </section>
           </mat-tab>
         }

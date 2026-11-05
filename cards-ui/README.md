@@ -2,27 +2,14 @@
 
 Standalone Angular 21 and Angular Material 21 frontend with responsive navigation,
 adjustable brightness, Cognito sign-in and registration, account profile flows,
-and a technology dashboard. The signed-in toolbar uses the theme surface color with primary-colored text and icons,
+and a sports card dashboard. The signed-in toolbar uses the theme surface color with primary-colored text and icons,
 over a decorative inline SVG pixel mosaic (`src/app/theme/toolbar-background.ts`)
 filled with the theme's primary and secondary colors, so it follows light/dark mode and brightness. The footer
 displays the account API's health, polling `/actuator/health` every 30 seconds.
-The dashboard cards explain the roles of the included technologies and are
-grouped into Front-end, Back-end, Cloud, and Tools tabs, also reachable from the side menu.
+The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
+menu; each is empty for now.
 The Material 3 palette is generated from primary and secondary `#DC143C`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).
-
-Card logos are served locally from `public/logos`: most come from
-[Devicon](https://github.com/devicons/devicon) (MIT; see
-`public/logos/DEVICON-LICENSE.txt`), the Amplify and Cognito icons from
-[theSVG](https://github.com/GLINCKER/thesvg) (see
-`public/logos/THESVG-LICENSE.txt`), and the Neon mark from
-[Simple Icons](https://github.com/simple-icons/simple-icons). Spring Boot,
-Spring Security, Spring Data JPA, Spring Boot Actuator, and Spring Boot DevTools share the
-Spring logo; Angular-family cards reuse the Angular and Angular Material logos, and SQL
-migrations reuses the PostgreSQL logo. Cards with no bundled, permissively licensed logo (SVG, Material Icons & Lato,
-Claude, the PowerShell scripts, and the AWS services and tools) show a Material icon instead. Logos remain
-trademarks of their owners; their appearance identifies technologies, not
-an endorsement.
 
 ## Local setup
 

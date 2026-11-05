@@ -95,82 +95,39 @@ describe('App', () => {
     expect(icon.textContent?.trim()).toBe('cloud_off');
   });
 
-  it('groups technology cards into front-end, back-end, cloud, and tools tabs', async () => {
+  it('shows baseball, basketball, football, and hockey tabs, each with no cards yet', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
     const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));
-    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual(['Front-end', 'Back-end', 'Cloud', 'Tools']);
-    const expected = [
-      ['Angular', 'Angular Material', 'Angular CDK', 'Angular Reactive Forms', 'Angular Signals', 'TypeScript', 'RxJS', 'Sass', 'SVG',
-        'Material Icons & Lato', 'Vitest', 'Angular CLI', 'Node.js & npm'],
-      ['Java', 'Spring Boot', 'Spring Security', 'Spring Data JPA', 'Bean Validation', 'Spring Boot Actuator', 'Swagger UI',
-        'JUnit & Mockito', 'Maven', 'Spring Boot DevTools', 'PostgreSQL', 'SQL migrations'],
-      ['AWS Amplify', 'Amazon Cognito', 'Neon', 'AWS Lambda', 'Amazon CloudFront', 'Amazon S3', 'AWS Certificate Manager',
-        'Amazon CloudWatch Logs'],
-      ['Claude', 'PowerShell scripts', 'AWS CLI'],
-    ];
-    const visibleCards = (label: string): HTMLElement[] => Array.from(
-      fixture.nativeElement.querySelectorAll(`section.card-grid[aria-label="${label} technologies"] mat-card`),
-    );
-    for (const [index, tab] of tabs.entries()) {
+    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual(['Baseball', 'Basketball', 'Football', 'Hockey']);
+    for (const tab of tabs) {
       tab.click();
       fixture.detectChanges();
       await fixture.whenStable();
       const label = tab.textContent!.trim();
-      const cards = visibleCards(label);
-      expect(cards.map((card) => card.querySelector('mat-card-title')?.textContent?.trim())).toEqual(expected[index]);
-      cards.forEach((card, cardIndex) => {
-        expect(card.style.getPropertyValue('--card-index')).toBe(String(cardIndex));
-        expect(card.querySelector('mat-card-content p')?.textContent?.trim().length).toBeGreaterThan(50);
-        const logo = card.querySelector<HTMLImageElement>('mat-card-header img.technology-logo');
-        const icon = card.querySelector<HTMLElement>('mat-card-header mat-icon.technology-icon');
-        expect(Boolean(logo) !== Boolean(icon)).toBe(true);
-        if (logo) {
-          expect(logo.getAttribute('src')).toMatch(/^logos\/[a-z-]+\.svg$/);
-          expect(logo.getAttribute('alt')).toBe('');
-        } else {
-          expect(icon?.textContent?.trim()).toMatch(/^[a-z_]+$/);
-          expect(icon?.getAttribute('aria-hidden')).toBe('true');
-        }
-      });
+      const panel = fixture.nativeElement.querySelector(`section.sport-panel[aria-label="${label} cards"]`);
+      expect(panel?.textContent?.trim()).toBe(`No ${label.toLowerCase()} cards yet.`);
     }
-    const backEnd = visibleCards('Back-end');
-    expect(backEnd).toHaveLength(0);
-    const tools = visibleCards('Tools');
-    expect(tools[0].querySelector('mat-icon.technology-icon')?.textContent?.trim()).toBe('smart_toy');
-    expect(tools[0].querySelector('mat-card-content')?.textContent).toContain('agents and templates provided by Adam Combs');
-    expect(tools[1].querySelector('mat-card-content')?.textContent).toContain('scripts/start-all.ps1');
-    tabs[2].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const cloud = visibleCards('Cloud');
-    expect(cloud[1].querySelector('img')?.getAttribute('src')).toBe('logos/amazon-cognito.svg');
-    expect(cloud[2].querySelector('img')?.getAttribute('src')).toBe('logos/neon.svg');
-    tabs[1].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const backEndCards = visibleCards('Back-end');
-    expect(backEndCards[4].querySelector('img')?.getAttribute('src')).toBe('logos/hibernate.svg');
-    expect(backEndCards[5].querySelector('mat-card-content')?.textContent).toContain('health check');
-    expect(backEndCards[6].querySelector('img')?.getAttribute('src')).toBe('logos/swagger.svg');
-    expect(backEndCards[7].querySelector('img')?.getAttribute('src')).toBe('logos/junit.svg');
   });
 
-  it('selects technology tabs from the side menu', async () => {
+  it('selects sport tabs from the side menu', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
     const navItems: HTMLElement[] = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-nav-list a[mat-list-item]')).slice(1);
-    expect(navItems.map((item) => item.querySelector('[matListItemTitle]')?.textContent?.trim()))    .toEqual(['Front-end', 'Back-end', 'Cloud', 'Tools']);
+    expect(navItems.map((item) => item.querySelector('[matListItemTitle]')?.textContent?.trim()))
+      .toEqual(['Baseball', 'Basketball', 'Football', 'Hockey']);
+    expect(navItems.map((item) => item.querySelector('[matListItemIcon]')?.textContent?.trim()))
+      .toEqual(['sports_baseball', 'sports_basketball', 'sports_football', 'sports_hockey']);
     navItems[2].click();
     fixture.detectChanges();
     await fixture.whenStable();
     const selected = fixture.nativeElement.querySelector('[role="tab"][aria-selected="true"]');
-    expect(selected?.textContent?.trim()).toBe('Cloud');
+    expect(selected?.textContent?.trim()).toBe('Football');
     expect(navItems[2].getAttribute('aria-current')).toBe('page');
     expect(navItems[0].hasAttribute('aria-current')).toBe(false);
-    expect(fixture.nativeElement.querySelector('section.card-grid[aria-label="Cloud technologies"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('section.sport-panel[aria-label="Football cards"]')).not.toBeNull();
   });
 
   it('toggles the sidenav from the hamburger button', () => {
@@ -257,7 +214,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('mat-sidenav-container')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.card-grid')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.sport-panel')).toBeNull();
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('.auth-screen button');
     button.click();
     expect(auth.signIn).toHaveBeenCalledOnce();

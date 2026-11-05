@@ -13,7 +13,7 @@ import { APP_NAME } from '../app-name';
         An Angular and Angular Material front end, backed by a Spring Boot account API,
         with sign-in provided by Amazon Cognito.
       </p>
-      <p>The dashboard cards describe each technology and how this application uses it.</p>
+      <p>A home for sports cards, sorted into baseball, basketball, football, and hockey.</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>Close</button>
