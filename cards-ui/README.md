@@ -8,7 +8,9 @@ filled with the theme's primary and secondary colors, so it follows light/dark m
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
 menu, each showing that sport's cards from `/api/cards` in two expandable panels: those with an eBay
-listing URL under Current eBay Listings (open at first), then the rest under Sold (closed at first).
+listing URL under Current eBay Listings (open at first), then the rest under Sold (closed at first),
+each split into a panel per PSA grade, highest first. The cards fly in one after another as a panel
+opens, and sold cards are stamped SOLD.
 A card shows the front of its PSA slab above its player, year, set, variety and card number, each on
 a line of its own; clicking it turns it to the back and again to the front. Hovering over it (or focusing it, and always
 on touch screens) shows a small zoom button in its corner, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with

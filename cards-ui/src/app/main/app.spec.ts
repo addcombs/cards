@@ -154,7 +154,7 @@ describe('App', () => {
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const details = Array.from<HTMLElement>(baseball.querySelectorAll('.card-details .card-line')).map((line) => line.textContent!.trim());
     expect(details).toEqual(['Derek Jeter', '1992', 'Topps Gold', 'Rookie', '#141']);
-    expect(baseball.querySelector('.card-grade')?.textContent?.trim()).toBe('PSA EX-MT 6');
+    expect(baseball.querySelector('.grade-group-title')?.textContent?.trim()).toBe('PSA EX-MT 6');
 
     const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));
     tabs[1].click();
@@ -243,7 +243,7 @@ describe('App', () => {
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const contents = Array.from<HTMLElement>(baseball.querySelectorAll('.sport-group-title, .card-player')).map((el) => el.textContent!.trim());
     expect(contents).toEqual(['Current eBay Listings', 'Derek Jeter', 'Sold', 'Dave Parker', 'George Brett']);
-    const headers = Array.from<HTMLElement>(baseball.querySelectorAll('mat-expansion-panel-header'));
+    const headers = Array.from<HTMLElement>(baseball.querySelectorAll('.sport-group > mat-expansion-panel-header'));
     expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'false']);
     expect(headers[1].textContent).toContain('2 cards');
     // Only the sold cards are stamped.
@@ -266,6 +266,31 @@ describe('App', () => {
     await fixture.whenStable();
     const basketball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Basketball cards"]');
     expect(Array.from<HTMLElement>(basketball.querySelectorAll('.sport-group-title')).map((h) => h.textContent!.trim())).toEqual(['Sold']);
+  });
+
+  it('splits each group by grade, highest first, each grade open at first', async () => {
+    cards.cards.set([
+      { ...card('1', 'Baseball', 'Dave Parker'), grade: 'NM-MT 8' },
+      { ...card('2', 'Baseball', 'Derek Jeter'), grade: 'MINT 9' },
+      { ...card('3', 'Baseball', 'George Brett'), grade: 'NM-MT 8' },
+      { ...card('4', 'Baseball', 'Nolan Ryan'), grade: null },
+    ]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const sold: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"] .sport-group');
+    const grades = Array.from<HTMLElement>(sold.querySelectorAll('.grade-group')).map((group) => ({
+      title: group.querySelector('.grade-group-title')!.textContent!.trim(),
+      count: group.querySelector('mat-panel-description')!.textContent!.trim(),
+      open: group.querySelector('mat-expansion-panel-header')!.getAttribute('aria-expanded'),
+      players: Array.from(group.querySelectorAll('.card-player')).map((player) => player.textContent!.trim()),
+    }));
+    expect(grades).toEqual([
+      { title: 'PSA MINT 9', count: '1 card', open: 'true', players: ['Derek Jeter'] },
+      { title: 'PSA NM-MT 8', count: '2 cards', open: 'true', players: ['Dave Parker', 'George Brett'] },
+      { title: 'Ungraded', count: '1 card', open: 'true', players: ['Nolan Ryan'] },
+    ]);
+    expect(sold.querySelector('.card-grade')).toBeNull();
   });
 
   it('lets only admins edit a card, saving trimmed details and closing on success', async () => {

@@ -176,75 +176,82 @@
                       <mat-expansion-panel class="sport-group" [expanded]="group.open">
                         <mat-expansion-panel-header>
                           <mat-panel-title class="sport-group-title">{{ group.title }}</mat-panel-title>
-                          <mat-panel-description>{{ group.cards.length }} {{ group.cards.length === 1 ? 'card' : 'cards' }}</mat-panel-description>
+                          <mat-panel-description>{{ group.count }} {{ group.count === 1 ? 'card' : 'cards' }}</mat-panel-description>
                         </mat-expansion-panel-header>
-                        <div class="card-grid">
-                          @for (card of group.cards; track card.photoId) {
-                            <figure class="sport-card">
-                              <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
-                                <button
-                                  type="button"
-                                  class="card-flip"
-                                  [attr.aria-pressed]="flipped().has(card.photoId)"
-                                  [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
-                                  (click)="toggleFlip(card)"
-                                >
-                                  <span class="card-faces">
-                                    <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
-                                      [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
-                                    <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
-                                      [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
-                                  </span>
-                                </button>
-                                @if (!card.ebayUrl) {
-                                  <span class="card-sold" aria-hidden="true">Sold</span>
+                        <mat-accordion class="grade-groups" multi>
+                          @for (grade of group.grades; track grade.title) {
+                            <mat-expansion-panel class="grade-group" expanded>
+                              <mat-expansion-panel-header>
+                                <mat-panel-title class="grade-group-title">{{ grade.title }}</mat-panel-title>
+                                <mat-panel-description>{{ grade.cards.length }} {{ grade.cards.length === 1 ? 'card' : 'cards' }}</mat-panel-description>
+                              </mat-expansion-panel-header>
+                              <div class="card-grid">
+                                @for (card of grade.cards; track card.photoId) {
+                                  <figure class="sport-card" [style.--card-index]="$index">
+                                    <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
+                                      <button
+                                        type="button"
+                                        class="card-flip"
+                                        [attr.aria-pressed]="flipped().has(card.photoId)"
+                                        [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
+                                        (click)="toggleFlip(card)"
+                                      >
+                                        <span class="card-faces">
+                                          <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                                            [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
+                                          <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                                            [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
+                                        </span>
+                                      </button>
+                                      @if (!card.ebayUrl) {
+                                        <span class="card-sold" aria-hidden="true">Sold</span>
+                                      }
+                                      <button
+                                        mat-mini-fab
+                                        type="button"
+                                        class="card-zoom"
+                                        matTooltip="Zoom"
+                                        [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
+                                        (click)="zoomCard(card)"
+                                      >
+                                        <mat-icon>zoom_in</mat-icon>
+                                      </button>
+                                    </div>
+                                    <figcaption>
+                                      <span class="card-details">
+                                        <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
+                                        <span class="card-year card-line">{{ card.year }}</span>
+                                        <span class="card-set card-line" [appFullTextTooltip]="card.setName">{{ card.setName }}</span>
+                                        @if (card.variety) {
+                                          <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
+                                        }
+                                        <span class="card-number card-line" [appFullTextTooltip]="'#' + card.cardNumber">#{{ card.cardNumber }}</span>
+                                        @if (card.ebayUrl) {
+                                          <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
+                                            eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
+                                            <span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                                          </a>
+                                        }
+                                      </span>
+                                      @if (auth.isAdmin()) {
+                                        <button
+                                          mat-icon-button
+                                          type="button"
+                                          class="card-edit"
+                                          [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
+                                          matTooltip="Edit card"
+                                          (click)="editCard(card)"
+                                        >
+                                          <mat-icon>edit</mat-icon>
+                                        </button>
+                                      }
+                                    </figcaption>
+                                  </figure>
                                 }
-                                <button
-                                  mat-mini-fab
-                                  type="button"
-                                  class="card-zoom"
-                                  matTooltip="Zoom"
-                                  [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
-                                  (click)="zoomCard(card)"
-                                >
-                                  <mat-icon>zoom_in</mat-icon>
-                                </button>
                               </div>
-                              <figcaption>
-                                <span class="card-details">
-                                  <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                                  <span class="card-year card-line">{{ card.year }}</span>
-                                  <span class="card-set card-line" [appFullTextTooltip]="card.setName">{{ card.setName }}</span>
-                                  @if (card.variety) {
-                                    <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
-                                  }
-                                  <span class="card-number card-line" [appFullTextTooltip]="'#' + card.cardNumber">#{{ card.cardNumber }}</span>
-                                  @if (card.grade) {
-                                    <span class="card-grade">PSA {{ card.grade }}</span>
-                                  }
-                                  @if (card.ebayUrl) {
-                                    <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
-                                      eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
-                                      <span class="cdk-visually-hidden"> (opens in a new tab)</span>
-                                    </a>
-                                  }
-                                </span>
-                                @if (auth.isAdmin()) {
-                                  <button
-                                    mat-icon-button
-                                    type="button"
-                                    class="card-edit"
-                                    [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
-                                    matTooltip="Edit card"
-                                    (click)="editCard(card)"
-                                  >
-                                    <mat-icon>edit</mat-icon>
-                                  </button>
-                                }
-                              </figcaption>
-                            </figure>
+                            </mat-expansion-panel>
                           }
-                        </div>
+                        </mat-accordion>
                       </mat-expansion-panel>
                     }
                   </mat-accordion>

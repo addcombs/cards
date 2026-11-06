@@ -33,11 +33,29 @@ export interface Sport {
   icon: string;
 }
 
-/** Cards shown together in a sport's tab, in a panel that starts `open` or closed. */
+/** Cards shown together in a sport's tab, in a panel that starts `open` or closed, by grade. */
 interface CardGroup {
   title: string;
-  cards: Card[];
+  count: number;
   open: boolean;
+  grades: GradeGroup[];
+}
+
+/** A group's cards of one PSA grade, in a panel of their own within it. */
+interface GradeGroup {
+  title: string;
+  cards: Card[];
+}
+
+/** Splits cards by grade, highest PSA number first; cards without a grade come last. */
+function byGrade(cards: Card[]): GradeGroup[] {
+  const grades = new Map<string, Card[]>();
+  for (const card of cards) {
+    const title = card.grade ? `PSA ${card.grade}` : 'Ungraded';
+    grades.set(title, [...(grades.get(title) ?? []), card]);
+  }
+  const number = (title: string) => Number(/(\d+(?:\.\d+)?)$/.exec(title)?.[1] ?? -1);
+  return Array.from(grades, ([title, cards]) => ({ title, cards })).sort((a, b) => number(b.title) - number(a.title));
 }
 
 @Component({
@@ -82,16 +100,19 @@ export class App {
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);
   /**
-   * Each sport's cards in the API's order, in groups: those listed on eBay, shown open, then the
-   * rest, which have sold, shown closed. Empty groups are left out.
+   * Each sport's cards in groups: those listed on eBay, shown open, then the rest, which have sold,
+   * shown closed; within each, by grade, and in the API's order within a grade. Empty groups are
+   * left out.
    */
   protected readonly cardsBySport = computed(() => {
     const bySport = new Map<string, Card[]>(this.sports.map((sport) => [sport.label, []]));
     for (const card of this.cards.cards()) bySport.get(card.sport)?.push(card);
+    const group = (title: string, cards: Card[], open: boolean): CardGroup =>
+      ({ title, count: cards.length, open, grades: byGrade(cards) });
     return new Map(Array.from(bySport, ([sport, cards]): [string, CardGroup[]] => [sport, [
-      { title: 'Current eBay Listings', cards: cards.filter((card) => card.ebayUrl), open: true },
-      { title: 'Sold', cards: cards.filter((card) => !card.ebayUrl), open: false },
-    ].filter((group) => group.cards.length)]));
+      group('Current eBay Listings', cards.filter((card) => card.ebayUrl), true),
+      group('Sold', cards.filter((card) => !card.ebayUrl), false),
+    ].filter((g) => g.count)]));
   });
   /** Photo IDs of the cards turned over to show their backs. */
   protected readonly flipped = signal<ReadonlySet<string>>(new Set());

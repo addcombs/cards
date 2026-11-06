@@ -37,11 +37,44 @@
   }
 }
 
+// Within each, a panel per grade, open at first.
+.grade-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grade-group {
+  --mat-expansion-container-background-color: transparent;
+  --mat-expansion-header-text-color: var(--mat-sys-on-surface);
+  --mat-expansion-container-elevation-shadow: none;
+}
+
+.grade-group-title {
+  flex: 0 0 auto;
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 24px 16px;
   padding-top: 8px;
+}
+
+// The cards fly in one after another, as acombs-dev.com's do, whenever they come into view as a
+// panel opens; the stagger stops growing after the 8th card so the last ones are not kept waiting.
+.sport-group.mat-expanded .grade-group.mat-expanded .sport-card {
+  animation: card-enter 1300ms cubic-bezier(0.2, 0, 0, 1) both;
+  animation-delay: calc(min(var(--card-index, 0), 8) * 200ms);
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 .sport-card {
@@ -103,7 +136,7 @@
 // A rubber stamp across a sold card's photo, front or back; clicks go through to the flip button.
 .card-sold {
   position: absolute;
-  top: 42%;
+  top: 62%;
   left: 50%;
   z-index: 1;
   padding: 2px 14px;
@@ -141,8 +174,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sport-group.mat-expanded .grade-group.mat-expanded .sport-card,
   .card-faces,
   .card-zoom {
+    animation: none;
     transition: none;
   }
 }
@@ -194,13 +229,3 @@
   font-size: 0.875rem;
 }
 
-.card-grade {
-  align-self: flex-start;
-  margin-top: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
