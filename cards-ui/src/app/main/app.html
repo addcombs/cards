@@ -49,10 +49,6 @@
       </button>
     </mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item href="#" (click)="sidenavOpened.set(!isWide())">
-        <mat-icon matListItemIcon>home</mat-icon>
-        <span matListItemTitle>Home</span>
-      </a>
       @for (sport of sports; track sport.label; let i = $index) {
         <a
           mat-list-item

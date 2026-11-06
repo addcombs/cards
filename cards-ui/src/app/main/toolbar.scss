@@ -18,13 +18,8 @@
     font-size: 1.125rem;
   }
 
-  // The open brightness slider takes the title's place.
-  .app-toolbar.brightness-open .app-title,
-  .app-toolbar.brightness-open .spacer {
+  // The title makes room for the open brightness slider, which keeps its width beside the icon.
+  .app-toolbar.brightness-open .app-title {
     display: none;
-  }
-
-  .app-toolbar.brightness-open .brightness-control {
-    flex: 1 1 auto;
   }
 }

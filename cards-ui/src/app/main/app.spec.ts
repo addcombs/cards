@@ -329,7 +329,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
-    const navItems: HTMLElement[] = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-nav-list a[mat-list-item]')).slice(1);
+    const navItems: HTMLElement[] = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-nav-list a[mat-list-item]'));
     expect(navItems.map((item) => item.querySelector('[matListItemTitle]')?.textContent?.trim()))
       .toEqual(['Baseball', 'Basketball', 'Football', 'Hockey']);
     expect(navItems.map((item) => item.querySelector('[matListItemIcon]')?.textContent?.trim()))
