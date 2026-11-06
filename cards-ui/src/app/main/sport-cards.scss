@@ -17,6 +17,17 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+// "Current eBay Listings" and "Sold", each across the grid above its cards.
+.sport-group-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}
+
+.sport-card + .sport-group-title {
+  margin-top: 16px;
+}
+
 .sport-card {
   display: flex;
   flex-direction: column;

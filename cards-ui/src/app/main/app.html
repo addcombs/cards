@@ -173,65 +173,68 @@
                 <p class="auth-error" role="alert">{{ cards.error() }}</p>
                 <button mat-button type="button" (click)="cards.load()">Try again</button>
               } @else {
-                @for (card of cardsBySport().get(sport.label); track card.photoId) {
-                  <figure class="sport-card">
-                    <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
-                      <button
-                        type="button"
-                        class="card-flip"
-                        [attr.aria-pressed]="flipped().has(card.photoId)"
-                        [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
-                        (click)="toggleFlip(card)"
-                      >
-                        <span class="card-faces">
-                          <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
-                            [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
-                          <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
-                            [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
-                        </span>
-                      </button>
-                      <button
-                        mat-mini-fab
-                        type="button"
-                        class="card-zoom"
-                        matTooltip="Zoom"
-                        [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
-                        (click)="zoomCard(card)"
-                      >
-                        <mat-icon>zoom_in</mat-icon>
-                      </button>
-                    </div>
-                    <figcaption>
-                      <span class="card-details">
-                        <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                        <span class="card-title card-line" [appFullTextTooltip]="cardTitle(card)">{{ cardTitle(card) }}</span>
-                        @if (card.variety) {
-                          <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
-                        }
-                        @if (card.grade) {
-                          <span class="card-grade">PSA {{ card.grade }}</span>
-                        }
-                        @if (card.ebayUrl) {
-                          <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
-                            eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
-                            <span class="cdk-visually-hidden"> (opens in a new tab)</span>
-                          </a>
-                        }
-                      </span>
-                      @if (auth.isAdmin()) {
+                @for (group of cardsBySport().get(sport.label); track group.title) {
+                  <h2 class="sport-group-title">{{ group.title }}</h2>
+                  @for (card of group.cards; track card.photoId) {
+                    <figure class="sport-card">
+                      <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
                         <button
-                          mat-icon-button
                           type="button"
-                          class="card-edit"
-                          [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
-                          matTooltip="Edit card"
-                          (click)="editCard(card)"
+                          class="card-flip"
+                          [attr.aria-pressed]="flipped().has(card.photoId)"
+                          [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
+                          (click)="toggleFlip(card)"
                         >
-                          <mat-icon>edit</mat-icon>
+                          <span class="card-faces">
+                            <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                              [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
+                            <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                              [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
+                          </span>
                         </button>
-                      }
-                    </figcaption>
-                  </figure>
+                        <button
+                          mat-mini-fab
+                          type="button"
+                          class="card-zoom"
+                          matTooltip="Zoom"
+                          [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
+                          (click)="zoomCard(card)"
+                        >
+                          <mat-icon>zoom_in</mat-icon>
+                        </button>
+                      </div>
+                      <figcaption>
+                        <span class="card-details">
+                          <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
+                          <span class="card-title card-line" [appFullTextTooltip]="cardTitle(card)">{{ cardTitle(card) }}</span>
+                          @if (card.variety) {
+                            <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
+                          }
+                          @if (card.grade) {
+                            <span class="card-grade">PSA {{ card.grade }}</span>
+                          }
+                          @if (card.ebayUrl) {
+                            <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
+                              eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
+                              <span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                            </a>
+                          }
+                        </span>
+                        @if (auth.isAdmin()) {
+                          <button
+                            mat-icon-button
+                            type="button"
+                            class="card-edit"
+                            [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
+                            matTooltip="Edit card"
+                            (click)="editCard(card)"
+                          >
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                        }
+                      </figcaption>
+                    </figure>
+                  }
                 } @empty {
                   <p class="sport-message">No {{ sport.label.toLowerCase() }} cards yet.</p>
                 }

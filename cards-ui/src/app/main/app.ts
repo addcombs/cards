@@ -32,6 +32,12 @@ export interface Sport {
   icon: string;
 }
 
+/** Cards shown together in a sport's tab under a heading. */
+interface CardGroup {
+  title: string;
+  cards: Card[];
+}
+
 @Component({
   selector: 'app-root',
   imports: [MatButtonModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
@@ -73,10 +79,17 @@ export class App {
   ];
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);
+  /**
+   * Each sport's cards in the API's order, in groups: those listed on eBay, then the rest, which
+   * have sold. Empty groups are left out.
+   */
   protected readonly cardsBySport = computed(() => {
     const bySport = new Map<string, Card[]>(this.sports.map((sport) => [sport.label, []]));
     for (const card of this.cards.cards()) bySport.get(card.sport)?.push(card);
-    return bySport;
+    return new Map(Array.from(bySport, ([sport, cards]): [string, CardGroup[]] => [sport, [
+      { title: 'Current eBay Listings', cards: cards.filter((card) => card.ebayUrl) },
+      { title: 'Sold', cards: cards.filter((card) => !card.ebayUrl) },
+    ].filter((group) => group.cards.length)]));
   });
   /** Photo IDs of the cards turned over to show their backs. */
   protected readonly flipped = signal<ReadonlySet<string>>(new Set());

@@ -7,7 +7,8 @@ over a decorative inline SVG pixel mosaic (`src/app/theme/toolbar-background.ts`
 filled with the theme's primary and secondary colors, so it follows light/dark mode and brightness. The footer
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
-menu, each showing that sport's cards from `/api/cards`. A card shows the front of its PSA slab;
+menu, each showing that sport's cards from `/api/cards`: those with an eBay listing URL under Current
+eBay Listings, then the rest under Sold. A card shows the front of its PSA slab;
 clicking it turns it to the back and again to the front. Hovering over it (or focusing it, and always
 on touch screens) shows a small zoom button in its corner, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with
 the buttons, mouse wheel or pinch and pan by dragging, from the larger `-zoom.jpg` photos. A card with

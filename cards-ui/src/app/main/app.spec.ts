@@ -228,19 +228,31 @@ describe('App', () => {
     expect(photo().getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}97041266/front-zoom.jpg`);
   });
 
-  it('links to the eBay listing of a card that has one', async () => {
+  it('shows the cards listed on eBay first, under their own heading, linking to the listings', async () => {
     cards.cards.set([
-      { ...card('97041266', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/123' },
       card('94481237', 'Baseball', 'Dave Parker'),
+      { ...card('97041266', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/123' },
+      card('98318134', 'Baseball', 'George Brett'),
+      card('94481240', 'Basketball', 'Kobe Bryant'),
     ]);
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
+    const contents = Array.from<HTMLElement>(baseball.querySelectorAll('h2, .card-player')).map((el) => el.textContent!.trim());
+    expect(contents).toEqual(['Current eBay Listings', 'Derek Jeter', 'Sold', 'Dave Parker', 'George Brett']);
     const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('a.card-ebay'));
     expect(links.map((link) => link.href)).toEqual(['https://www.ebay.com/itm/123']);
     expect(links[0].target).toBe('_blank');
     expect(links[0].rel).toBe('noopener');
     expect(links[0].textContent).toContain('eBay listing');
+
+    // A sport with nothing listed has only the Sold heading.
+    (fixture.nativeElement.querySelectorAll('[role="tab"]')[1] as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const basketball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Basketball cards"]');
+    expect(Array.from<HTMLElement>(basketball.querySelectorAll('h2')).map((h) => h.textContent!.trim())).toEqual(['Sold']);
   });
 
   it('lets only admins edit a card, saving trimmed details and closing on success', async () => {
