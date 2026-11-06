@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -32,15 +33,16 @@ export interface Sport {
   icon: string;
 }
 
-/** Cards shown together in a sport's tab under a heading. */
+/** Cards shown together in a sport's tab, in a panel that starts `open` or closed. */
 interface CardGroup {
   title: string;
   cards: Card[];
+  open: boolean;
 }
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
+  imports: [MatButtonModule, MatExpansionModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,15 +82,15 @@ export class App {
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);
   /**
-   * Each sport's cards in the API's order, in groups: those listed on eBay, then the rest, which
-   * have sold. Empty groups are left out.
+   * Each sport's cards in the API's order, in groups: those listed on eBay, shown open, then the
+   * rest, which have sold, shown closed. Empty groups are left out.
    */
   protected readonly cardsBySport = computed(() => {
     const bySport = new Map<string, Card[]>(this.sports.map((sport) => [sport.label, []]));
     for (const card of this.cards.cards()) bySport.get(card.sport)?.push(card);
     return new Map(Array.from(bySport, ([sport, cards]): [string, CardGroup[]] => [sport, [
-      { title: 'Current eBay Listings', cards: cards.filter((card) => card.ebayUrl) },
-      { title: 'Sold', cards: cards.filter((card) => !card.ebayUrl) },
+      { title: 'Current eBay Listings', cards: cards.filter((card) => card.ebayUrl), open: true },
+      { title: 'Sold', cards: cards.filter((card) => !card.ebayUrl), open: false },
     ].filter((group) => group.cards.length)]));
   });
   /** Photo IDs of the cards turned over to show their backs. */

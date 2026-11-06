@@ -5,27 +5,43 @@
 }
 
 .sport-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px 16px;
-  padding: 24px 8px;
+  padding: 24px 0;
 }
 
 .sport-message {
-  grid-column: 1 / -1;
-  margin: 0;
+  margin: 0 8px;
   color: var(--mat-sys-on-surface-variant);
 }
 
-// "Current eBay Listings" and "Sold", each across the grid above its cards.
-.sport-group-title {
-  grid-column: 1 / -1;
-  margin: 0;
-  font: var(--mat-sys-title-large);
+// "Current eBay Listings" (open at first) and "Sold" (closed), each an expansion panel of cards.
+.sport-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.sport-card + .sport-group-title {
-  margin-top: 16px;
+.sport-group {
+  --mat-expansion-container-background-color: transparent;
+  --mat-expansion-header-text-color: var(--mat-sys-on-surface);
+}
+
+.sport-group-title {
+  flex: 0 0 auto;
+  font: var(--mat-sys-title-large);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .sport-group-title {
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px 16px;
+  padding-top: 8px;
 }
 
 .sport-card {
