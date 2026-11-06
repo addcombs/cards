@@ -1,14 +1,16 @@
 # Builds and tests the UI and the API on every push and pull request, as scripts\start-all.ps1 does
-# locally. Pushes to main that pass then deploy both, as deploy-ui.ps1 and deploy-api.ps1 do, once
-# scripts\create-github-deploy-role.ps1 has made the deploy role and its ARN is the repository's
-# Actions variable AWS_DEPLOY_ROLE_ARN. The deploy publishes new API code only; the function's
-# settings stay as deploy-api.ps1 set them, so no secrets are stored in GitHub.
+# locally. Pushes to main that pass, and runs started by hand on main (Actions > CI > Run workflow,
+# e.g. for a new app's first deploy), then deploy both, once scripts\create-github-deploy-role.ps1
+# has made the deploy role and its ARN is the repository's Actions variable AWS_DEPLOY_ROLE_ARN.
+# The UI deploy also gives the Cognito sign-in page the theme colors. The deploy publishes new API
+# code only; the function's settings stay as deploy-api.ps1 set them, so no secrets are stored in GitHub.
 name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -47,7 +49,7 @@ jobs:
       - run: npm test -- --watch=false
       # Angular builds to dist/<angular.json project name>/browser; deploy-ui uploads that folder.
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         with:
           name: ui
           path: cards-ui/dist/
@@ -69,7 +71,7 @@ jobs:
 
   deploy-api:
     needs: [ui, api]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -125,7 +127,7 @@ jobs:
 
   deploy-ui:
     needs: [ui, api]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -166,7 +168,8 @@ jobs:
           id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / \
             --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$dist_id" --id "$id"
-      # So the sign-in page always has the site's colors, as scripts\brand-managed-login.ps1 does.
+      # So the sign-in page always has the site's colors: config/managed-login-branding.json filled in
+      # from the theme palettes by scripts/managed-login-style.ps1.
       - name: Brand the sign-in page with the theme colors
         shell: pwsh
         run: |

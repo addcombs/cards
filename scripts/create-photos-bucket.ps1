@@ -1,6 +1,6 @@
 # Creates the private card-photo bucket and serves it from the UI's CloudFront distribution at
 # https://<domain>/photos/ (bucket keys photos/<photo id>/front.jpg and back.jpg, uploaded by
-# upload-card-photos.ps1). The photos are kept apart from the UI bucket, which deploy-ui empties of
+# upload-card-photos.ps1). The photos are kept apart from the UI bucket, which each UI deploy empties of
 # anything not in the build. The distribution reaches the bucket through the UI's origin access
 # control, and the bucket policy lets only that distribution read it. Safe to re-run: the bucket,
 # origin and behavior are reused. Log: logs\photos-bucket.log

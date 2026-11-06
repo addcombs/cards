@@ -1,7 +1,7 @@
 # Get-ManagedLoginStyle fills config\managed-login-branding.json's palette references, such as
 # {primary-40} or {secondary-90}, from the UI's Material palettes, so the Cognito sign-in page
-# matches the app. Dot-source it; it needs nothing else, so the deploy (.github/workflows/ci.yml,
-# PowerShell 7 on Linux) and scripts\brand-managed-login.ps1 both use it.
+# matches the app. The UI deploy (.github/workflows/ci.yml, PowerShell 7 on Linux) dot-sources it
+# and applies the result, so it needs nothing else.
 function Get-ManagedLoginStyle([string]$ThemeFile, [string]$SettingsFile, [string]$Primary, [string]$Secondary) {
   $theme = Get-Content $ThemeFile -Raw
   # The palettes must come from the colours in project.json, or the sign-in page would get old ones.
