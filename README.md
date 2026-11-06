@@ -51,5 +51,9 @@ To add cards, put PSA's photo downloads in `photos\` (git-ignored), run
 run `scripts\apply-migrations.ps1`. The migration only adds cards that are missing; correct an existing
 card's details in the app, with the pencil button an admin sees under each card.
 
+`scripts\set-email-verification.ps1 -Mode Off` lets new accounts register without the code Cognito
+emails them: a pre-sign-up Lambda trigger confirms each account and marks its email verified.
+`-Mode On` brings the code back.
+
 After that, each push to `main` deploys. `scripts\start-all.ps1` builds and tests both apps locally
 before starting them.

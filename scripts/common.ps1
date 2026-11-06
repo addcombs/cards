@@ -42,6 +42,8 @@ $names = [ordered]@{
   GitHubDeployRole = "$app-github-deploy"
   UserPool     = "$app-users"
   UserClient   = "$app-ui"
+  SignUpTrigger     = "$app-auto-confirm"
+  SignUpTriggerRole = "$app-auto-confirm-lambda"
   Oac          = "$app-ui-oac"
   # ACM idempotency tokens allow only letters and digits.
   CertToken    = (($app -replace '[^A-Za-z0-9]', '') + 'cert')
