@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 // The schema comes from DATABASE_SCHEMA (hibernate.default_schema in application.properties).
-// Rows come from db/migrations/002-cards.sql; the API only reads them.
+// db/migrations/002-cards.sql adds the collection; admins edit the cards' details through the API.
 @Table(name = "cards")
 public class Card {
     @Id
@@ -40,6 +40,9 @@ public class Card {
     @Column(name = "grade")
     private String grade;
 
+    @Column(name = "ebay_url")
+    private String ebayUrl;
+
     protected Card() {
     }
 
@@ -54,6 +57,22 @@ public class Card {
         this.player = player;
         this.variety = variety;
         this.grade = grade;
+    }
+
+    void update(CardRequest request) {
+        this.certNumber = blankToNull(request.certNumber());
+        this.sport = request.sport();
+        this.year = request.year();
+        this.setName = request.setName().trim();
+        this.cardNumber = request.cardNumber().trim();
+        this.player = request.player().trim();
+        this.variety = blankToNull(request.variety());
+        this.grade = blankToNull(request.grade());
+        this.ebayUrl = blankToNull(request.ebayUrl());
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public Integer getId() {
@@ -94,5 +113,9 @@ public class Card {
 
     public String getGrade() {
         return grade;
+    }
+
+    public String getEbayUrl() {
+        return ebayUrl;
     }
 }

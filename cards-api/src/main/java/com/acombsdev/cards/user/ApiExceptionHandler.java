@@ -18,7 +18,7 @@ public class ApiExceptionHandler {
     ProblemDetail handleConflict(DataIntegrityViolationException exception) {
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
-                "The operation conflicts with an existing database value, such as a duplicate email."
+                "The operation conflicts with an existing database value, such as a duplicate email or cert number."
         );
     }
 }

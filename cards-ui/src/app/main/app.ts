@@ -18,6 +18,8 @@ import { AccountService } from './account/account.service';
 import { AccountDetailsComponent } from './account/account-details';
 import { ApiStatusService } from './api-status/api-status.service';
 import { Card, CardService, cardPhotoUrl } from './cards/card.service';
+import { CardEditComponent } from './cards/card-edit';
+import { CardZoomComponent, CardZoomData } from './cards/card-zoom';
 import { apiUrl } from '../api-url';
 import { APP_DISPLAY_NAME, DEVELOPER_NAME } from './app-name';
 import { AboutDialogComponent } from './about/about-dialog';
@@ -33,7 +35,7 @@ export interface Sport {
   selector: 'app-root',
   imports: [MatButtonModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, RegistrationComponent, ToolbarBackgroundComponent],
   templateUrl: './app.html',
-  styleUrls: ['./app.scss', './brightness-control.scss'],
+  styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
@@ -158,6 +160,15 @@ export class App {
 
   protected cardTitle(card: Card): string {
     return `${card.year} ${card.setName} #${card.cardNumber}`;
+  }
+
+  protected zoomCard(card: Card): void {
+    const data: CardZoomData = { card, side: this.flipped().has(card.photoId) ? 'back' : 'front' };
+    this.dialog.open(CardZoomComponent, { data, width: '720px', maxWidth: 'calc(100vw - 32px)', autoFocus: 'dialog' });
+  }
+
+  protected editCard(card: Card): void {
+    this.dialog.open(CardEditComponent, { data: card, width: '520px', maxWidth: 'calc(100vw - 32px)' });
   }
 
   protected openAbout(): void {

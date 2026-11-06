@@ -66,6 +66,18 @@ describe('AuthService', () => {
     await vi.waitFor(() => expect(service.status()).toBe('signedIn'));
     expect(service.email()).toBe('user@example.com');
     expect(service.firstName()).toBe('Alex');
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('recognizes members of the admins group', async () => {
+    mocks.fetchAuthSession.mockResolvedValue({
+      tokens: { idToken: { payload: { email: 'user@example.com', 'cognito:groups': ['admins'] } } },
+    });
+    const service = new AuthService();
+    await vi.waitFor(() => expect(service.status()).toBe('signedIn'));
+    expect(service.isAdmin()).toBe(true);
+    await service.signOut();
+    expect(service.isAdmin()).toBe(false);
   });
 
   it('starts sign-in and signs out through Cognito', async () => {

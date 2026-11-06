@@ -1,0 +1,57 @@
+.zoom-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.zoom-subtitle {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+mat-dialog-content.zoom-content {
+  padding: 0 24px;
+  max-height: none;
+}
+
+// Scrolls once zoomed; margin: auto centres the photo while it fits and lets it overflow evenly after.
+// At 100% the whole 3:5 slab fits: no taller than the dialog's content width allows (100vw less the
+// dialog's 16px margins and 24px padding a side).
+.zoom-viewport {
+  display: flex;
+  height: min(70vh, 800px, calc((100vw - 80px) * 5 / 3));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-highest);
+}
+
+.zoom-viewport.zoomed {
+  cursor: grab;
+}
+
+.zoom-viewport.dragging {
+  cursor: grabbing;
+}
+
+.zoom-photo {
+  flex-shrink: 0;
+  margin: auto;
+  user-select: none;
+}
+
+.zoom-actions {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+}
+
+.zoom-level {
+  min-width: 64px;
+  font-variant-numeric: tabular-nums;
+}

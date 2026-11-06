@@ -1,0 +1,44 @@
+<h1 mat-dialog-title class="zoom-title">
+  <span class="zoom-player">{{ data.card.player }}</span>
+  <span class="zoom-subtitle">{{ title() }}</span>
+</h1>
+<mat-dialog-content class="zoom-content">
+  <div
+    #viewport
+    class="zoom-viewport"
+    [class.zoomed]="zoom() > minZoom"
+    [class.dragging]="dragging()"
+    (wheel)="wheel($event)"
+    (pointerdown)="startDrag($event)"
+    (pointermove)="moveDrag($event)"
+    (pointerup)="endDrag()"
+    (pointercancel)="endDrag()"
+  >
+    <img
+      class="zoom-photo"
+      [src]="photoUrl()"
+      [style.height.%]="zoom() * 100"
+      [alt]="(side() === 'front' ? 'Front' : 'Back') + ' of ' + data.card.player + ', ' + title()"
+      draggable="false"
+      (error)="photoMissing()"
+    />
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions class="zoom-actions">
+  <mat-button-toggle-group hideSingleSelectionIndicator aria-label="Side" [value]="side()" (change)="showSide($event.value)">
+    <mat-button-toggle value="front">Front</mat-button-toggle>
+    <mat-button-toggle value="back">Back</mat-button-toggle>
+  </mat-button-toggle-group>
+  <span class="zoom-controls">
+    <button mat-icon-button type="button" aria-label="Zoom out" matTooltip="Zoom out" [disabled]="zoom() <= minZoom" (click)="zoomOut()">
+      <mat-icon>zoom_out</mat-icon>
+    </button>
+    <button mat-button type="button" class="zoom-level" aria-label="Fit to window" matTooltip="Fit to window" [disabled]="zoom() <= minZoom" (click)="reset()">
+      {{ (zoom() * 100).toFixed(0) }}%
+    </button>
+    <button mat-icon-button type="button" aria-label="Zoom in" matTooltip="Zoom in" [disabled]="zoom() >= maxZoom" (click)="zoomIn()">
+      <mat-icon>zoom_in</mat-icon>
+    </button>
+  </span>
+  <button mat-button type="button" mat-dialog-close>Close</button>
+</mat-dialog-actions>

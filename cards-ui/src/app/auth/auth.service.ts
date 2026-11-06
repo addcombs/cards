@@ -14,6 +14,8 @@ export class AuthService {
   readonly status = signal<AuthStatus>('loading');
   readonly email = signal('');
   readonly firstName = signal('');
+  /** Whether the user is in the Cognito admins group, whose members may edit the cards (the API checks too). */
+  readonly isAdmin = signal(false);
   readonly error = signal('');
   readonly busy = signal(false);
   /**
@@ -87,6 +89,7 @@ export class AuthService {
       window.sessionStorage.removeItem(NONCE_KEY);
       this.email.set('');
       this.firstName.set('');
+      this.isAdmin.set(false);
       this.status.set('signedOut');
     } catch (error) {
       console.error('Cognito sign-out failed', error);
@@ -120,6 +123,8 @@ export class AuthService {
       const firstName = session.tokens.idToken?.payload['given_name'];
       this.email.set(typeof email === 'string' ? email : '');
       this.firstName.set(typeof firstName === 'string' ? firstName.trim() : '');
+      const groups = session.tokens.idToken?.payload['cognito:groups'];
+      this.isAdmin.set(Array.isArray(groups) && groups.includes('admins'));
       this.status.set('signedIn');
     } catch (error) {
       console.error('Could not restore Cognito session', error);

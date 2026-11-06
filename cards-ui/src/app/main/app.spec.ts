@@ -19,6 +19,7 @@ describe('App', () => {
     email: signal('user@example.com'),
     error: signal(''),
     busy: signal(false),
+    isAdmin: signal(false),
     signIn: vi.fn(),
     signOut: vi.fn(),
   };
@@ -37,14 +38,18 @@ describe('App', () => {
   const apiStatus = { status: signal<'checking' | 'up' | 'down'>('checking') };
   const card = (photoId: string, sport: string, player: string, variety: string | null = null): Card => ({
     photoId, certNumber: photoId, sport, year: 1992, setName: 'Topps Gold', cardNumber: '141', player, variety,
-    grade: 'EX-MT 6',
+    grade: 'EX-MT 6', ebayUrl: null,
   });
   const cards = {
     state: signal<'idle' | 'loading' | 'ready' | 'error'>('ready'),
     cards: signal<Card[]>([]),
     error: signal(''),
+    saving: signal(false),
+    saveError: signal(''),
     load: vi.fn(),
     reset: vi.fn(),
+    save: vi.fn(async () => true),
+    clearSaveError: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -54,6 +59,7 @@ describe('App', () => {
     auth.error.set('');
     auth.firstName.set('');
     auth.busy.set(false);
+    auth.isAdmin.set(false);
     account.state.set('ready');
     account.details.set(null);
     account.editing.set(false);
@@ -63,6 +69,8 @@ describe('App', () => {
     cards.state.set('ready');
     cards.cards.set([]);
     cards.error.set('');
+    cards.saving.set(false);
+    cards.saveError.set('');
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [App],
@@ -150,24 +158,145 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(players('Basketball')).toEqual(['Michael Jordan', 'Kobe Bryant']);
-    const flip: HTMLButtonElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Basketball cards"] button.card-flip');
-    const [front, back] = Array.from<HTMLImageElement>(flip.querySelectorAll('img'));
+    const [photo, otherPhoto] = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('section.sport-panel[aria-label="Basketball cards"] .card-photo'),
+    );
+    const [front, back] = Array.from<HTMLImageElement>(photo.querySelectorAll('img'));
     expect(front.getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}94481237/front.jpg`);
     expect(back.getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}94481237/back.jpg`);
+    expect(front.alt).toBe('Front of Michael Jordan, 1992 Topps Gold #141');
+    expect(back.getAttribute('aria-hidden')).toBe('true');
+    const flip = photo.querySelector('button.card-flip') as HTMLButtonElement;
+    expect(flip.textContent).toContain('Flip');
     expect(flip.getAttribute('aria-pressed')).toBe('false');
-    expect(flip.getAttribute('aria-label')).toBe('Show the back of Michael Jordan, 1992 Topps Gold #141');
+    expect(flip.getAttribute('aria-label')).toBe('Flip Michael Jordan, 1992 Topps Gold #141 to the back');
 
     flip.click();
     fixture.detectChanges();
-    expect(flip.classList).toContain('flipped');
+    expect(photo.classList).toContain('flipped');
     expect(flip.getAttribute('aria-pressed')).toBe('true');
-    expect(flip.getAttribute('aria-label')).toBe('Show the front of Michael Jordan, 1992 Topps Gold #141');
-    const other: HTMLButtonElement = fixture.nativeElement.querySelectorAll('section.sport-panel[aria-label="Basketball cards"] button.card-flip')[1];
-    expect(other.classList).not.toContain('flipped');
+    expect(flip.getAttribute('aria-label')).toBe('Flip Michael Jordan, 1992 Topps Gold #141 to the front');
+    expect(front.getAttribute('aria-hidden')).toBe('true');
+    expect(back.getAttribute('aria-hidden')).toBe('false');
+    expect(otherPhoto.classList).not.toContain('flipped');
 
     flip.click();
     fixture.detectChanges();
-    expect(flip.classList).not.toContain('flipped');
+    expect(photo.classList).not.toContain('flipped');
+  });
+
+  it('zooms a card in a dialog, starting on the side showing', async () => {
+    cards.cards.set([card('97041266', 'Baseball', 'Derek Jeter')]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    (fixture.nativeElement.querySelector('button.card-flip') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const zoom = fixture.nativeElement.querySelector('button.card-zoom') as HTMLButtonElement;
+    expect(zoom.textContent).toContain('Zoom');
+    expect(zoom.getAttribute('aria-label')).toBe('Zoom Derek Jeter, 1992 Topps Gold #141');
+    zoom.click();
+    fixture.detectChanges();
+
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    const photo = () => dialog.querySelector('img.zoom-photo') as HTMLImageElement;
+    const button = (label: string) => dialog.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+    expect(photo().getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}97041266/back-zoom.jpg`);
+    expect(photo().alt).toBe('Back of Derek Jeter, 1992 Topps Gold #141');
+    expect(photo().style.height).toBe('100%');
+    expect(button('Zoom out').disabled).toBe(true);
+
+    button('Zoom in').click();
+    fixture.detectChanges();
+    expect(photo().style.height).toBe('150%');
+    expect(button('Fit to window').textContent?.trim()).toBe('150%');
+    for (let i = 0; i < 5; i++) button('Zoom in').click();
+    fixture.detectChanges();
+    expect(photo().style.height).toBe('400%');
+    expect(button('Zoom in').disabled).toBe(true);
+    button('Fit to window').click();
+    fixture.detectChanges();
+    expect(photo().style.height).toBe('100%');
+
+    // A missing zoom photo falls back to the regular one.
+    photo().dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(photo().getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}97041266/back.jpg`);
+    (Array.from(dialog.querySelectorAll('mat-button-toggle button')) as HTMLButtonElement[])[0].click();
+    fixture.detectChanges();
+    expect(photo().getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}97041266/front-zoom.jpg`);
+  });
+
+  it('links to the eBay listing of a card that has one', async () => {
+    cards.cards.set([
+      { ...card('97041266', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/123' },
+      card('94481237', 'Baseball', 'Dave Parker'),
+    ]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('a.card-ebay'));
+    expect(links.map((link) => link.href)).toEqual(['https://www.ebay.com/itm/123']);
+    expect(links[0].target).toBe('_blank');
+    expect(links[0].rel).toBe('noopener');
+    expect(links[0].textContent).toContain('eBay listing');
+  });
+
+  it('lets only admins edit a card, saving trimmed details and closing on success', async () => {
+    cards.cards.set([card('97041266', 'Baseball', 'Derek Jeter', 'Rookie')]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('button.card-edit')).toBeNull();
+
+    auth.isAdmin.set(true);
+    fixture.detectChanges();
+    const edit: HTMLButtonElement = fixture.nativeElement.querySelector('button.card-edit');
+    expect(edit.getAttribute('aria-label')).toBe('Edit Derek Jeter, 1992 Topps Gold #141');
+    edit.click();
+    fixture.detectChanges();
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    const input = (name: string) => dialog.querySelector(`input[formControlName="${name}"]`) as HTMLInputElement;
+    expect(input('player').value).toBe('Derek Jeter');
+    expect(input('variety').value).toBe('Rookie');
+    const save = Array.from(dialog.querySelectorAll('button')).find((button) => button.textContent?.includes('Save'))!;
+    expect(save.disabled).toBe(true);
+
+    input('player').value = ' Derek Sanderson Jeter ';
+    input('variety').value = '  ';
+    for (const name of ['player', 'variety']) input(name).dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(save.disabled).toBe(false);
+    dialog.querySelector('form')?.dispatchEvent(new Event('submit'));
+    expect(cards.save).toHaveBeenCalledWith('97041266', {
+      player: 'Derek Sanderson Jeter', sport: 'Baseball', year: 1992, setName: 'Topps Gold', cardNumber: '141',
+      variety: null, grade: 'EX-MT 6', certNumber: '97041266', ebayUrl: null,
+    });
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).toBeNull());
+  });
+
+  it('keeps the card dialog open with the error when saving fails', async () => {
+    auth.isAdmin.set(true);
+    cards.cards.set([card('97041266', 'Baseball', 'Derek Jeter')]);
+    cards.save.mockImplementationOnce(async () => {
+      cards.saveError.set('Another card already has this cert number.');
+      return false;
+    });
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    (fixture.nativeElement.querySelector('button.card-edit') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    const grade = dialog.querySelector('input[formControlName="grade"]') as HTMLInputElement;
+    grade.value = 'MINT 9';
+    grade.dispatchEvent(new Event('input'));
+    dialog.querySelector('form')?.dispatchEvent(new Event('submit'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(dialog.querySelector('[role="alert"]')?.textContent).toContain('Another card already has this cert number.');
   });
 
   it('loads the cards on sign-in and offers a retry when loading fails', () => {

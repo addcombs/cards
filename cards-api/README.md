@@ -2,7 +2,7 @@
 
 Spring Boot account and card API for cards (UI: `../cards-ui`), backed by the `users` and `cards` tables in the app's own schema of a shared PostgreSQL database (`DATABASE_SCHEMA`; `cards` for cards). Hibernate validates the tables at startup and does not create or modify database objects; `..\scripts\apply-migrations.ps1` does.
 
-All application endpoints are under `/api/account` and `/api/cards` and require a verified Cognito ID token. The health check and API documentation endpoints are public.
+All application endpoints are under `/api/account` and `/api/cards` and require a verified Cognito ID token; editing a card also requires membership in the Cognito group `admins` (`..\scripts\add-card-admin.ps1`), which the token lists in `cognito:groups`. The health check and API documentation endpoints are public.
 
 ## Requirements
 
@@ -21,7 +21,9 @@ SELECT lower(email), count(*) FROM <schema>.users
 WHERE email IS NOT NULL GROUP BY lower(email) HAVING count(*) > 1;
 ```
 
-`002-cards.sql` creates the `cards` table and fills it with the collection: sport, year, set, card number, player, variety, PSA grade and cert number, and the photo ID that names the card's photos in the photo bucket (`..\scripts\upload-card-photos.ps1`). To add or correct a card, edit its row there and re-run the migrations; listed cards are updated in place.
+`002-cards.sql` creates the `cards` table and fills it with the collection: sport, year, set, card number, player, variety, PSA grade and cert number, and the photo ID that names the card's photos in the photo bucket (`..\scripts\upload-card-photos.ps1`). To add a card, add its row there and re-run the migrations. Re-running leaves cards already in the table alone, so details edited through `PUT /api/cards/{photoId}` are kept; correct existing cards that way rather than in the file.
+
+`003-ebay-listing.sql` adds `ebay_url`, the card's eBay listing (an http or https URL), set through `PUT /api/cards/{photoId}`.
 
 Nothing is applied automatically: the application cannot start against an out-of-date schema because Hibernate validates it (`ddl-auto=validate`).
 
@@ -76,5 +78,6 @@ host, e.g. `https://api.cards.acombs-dev.com/swagger-ui.html`.
 | `GET` | `/api/account` | Get current user's details, linking an existing row by verified email if necessary; `404` if absent |
 | `PUT` | `/api/account` | Create or update current user's details |
 | `GET` | `/api/cards` | List the cards, oldest first, each with its sport and photo ID |
+| `PUT` | `/api/cards/{photoId}` | Edit a card's details (admins only, else `403`); `404` for an unknown card, `409` for a cert number another card has |
 
 The account endpoint takes `firstName` and `lastName` (required, maximum 100 characters) and `phoneNumber` (optional, maximum 40 characters). It obtains email and subject exclusively from the verified ID token; the client cannot change email. IDs and account audit fields are system-managed. A row linked to a different subject or a changed verified email causes `409` and requires administrative resolution.

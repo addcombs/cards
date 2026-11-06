@@ -7,8 +7,13 @@ over a decorative inline SVG pixel mosaic (`src/app/theme/toolbar-background.ts`
 filled with the theme's primary and secondary colors, so it follows light/dark mode and brightness. The footer
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
-menu, each showing that sport's cards from `/api/cards`. A card shows the front of its PSA slab, and
-clicking it flips it to the back. The photos load from `photosUrl` in `src/app/project.settings.ts`:
+menu, each showing that sport's cards from `/api/cards`. A card shows the front of its PSA slab;
+hovering over it (or focusing it, and always on touch screens) shows Flip, which turns it to the
+back, and Zoom, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with
+the buttons, mouse wheel or pinch and pan by dragging, from the larger `-zoom.jpg` photos. A card with
+an eBay listing URL links to it. Members of the Cognito group `admins` also see a pencil button under
+each card, which opens a dialog to edit its details (`src/app/main/cards/card-edit.ts`); the API
+checks the group too. The photos load from `photosUrl` in `src/app/project.settings.ts`:
 the UI's own host at `/photos/`, which CloudFront serves from the photo bucket.
 The Material 3 palette is generated from primary and secondary `#DC143C`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).

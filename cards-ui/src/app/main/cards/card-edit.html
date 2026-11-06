@@ -1,0 +1,55 @@
+<form [formGroup]="form" (ngSubmit)="save()">
+  <h1 mat-dialog-title>Edit card</h1>
+  <mat-dialog-content class="card-edit-fields">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Player</mat-label>
+      <input matInput formControlName="player" maxlength="255" required>
+      <mat-error>Enter the player.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Sport</mat-label>
+      <mat-select formControlName="sport" required>
+        @for (sport of sports; track sport) {
+          <mat-option [value]="sport">{{ sport }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Year</mat-label>
+      <input matInput type="number" formControlName="year" min="1800" max="2100" required>
+      <mat-error>Enter a year from 1800 to 2100.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Set</mat-label>
+      <input matInput formControlName="setName" maxlength="255" required>
+      <mat-error>Enter the set.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Card number</mat-label>
+      <input matInput formControlName="cardNumber" maxlength="20" required>
+      <mat-error>Enter the card number.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Variety (optional)</mat-label>
+      <input matInput formControlName="variety" maxlength="255">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>PSA grade (optional)</mat-label>
+      <input matInput formControlName="grade" maxlength="20">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Cert number (optional)</mat-label>
+      <input matInput formControlName="certNumber" maxlength="20">
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>eBay listing URL (optional)</mat-label>
+      <input matInput type="url" formControlName="ebayUrl" maxlength="2048" placeholder="https://www.ebay.com/itm/...">
+      <mat-error>Enter a link starting with https://.</mat-error>
+    </mat-form-field>
+    @if (cards.saveError()) { <p class="card-edit-error wide" role="alert">{{ cards.saveError() }}</p> }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="cards.saving()">Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="cards.saving() || !hasChanges()">Save</button>
+  </mat-dialog-actions>
+</form>

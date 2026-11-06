@@ -68,7 +68,7 @@
   </mat-sidenav>
 
   <mat-sidenav-content class="app-content">
-    <mat-toolbar color="primary" class="app-toolbar">
+    <mat-toolbar color="primary" class="app-toolbar" [class.brightness-open]="brightnessOpen()">
       <app-toolbar-background />
       <button
         mat-icon-button
@@ -175,24 +175,62 @@
               } @else {
                 @for (card of cardsBySport().get(sport.label); track card.photoId) {
                   <figure class="sport-card">
-                    <button
-                      type="button"
-                      class="card-flip"
-                      [class.flipped]="flipped().has(card.photoId)"
-                      [attr.aria-pressed]="flipped().has(card.photoId)"
-                      [attr.aria-label]="(flipped().has(card.photoId) ? 'Show the front of ' : 'Show the back of ') + card.player + ', ' + cardTitle(card)"
-                      (click)="toggleFlip(card)"
-                    >
+                    <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
                       <span class="card-faces">
-                        <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" alt="" loading="lazy" width="600" height="1000" />
-                        <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" alt="" loading="lazy" width="600" height="1000" />
+                        <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                          [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
+                        <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                          [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
                       </span>
-                    </button>
+                      <span class="card-actions">
+                        <button
+                          mat-flat-button
+                          type="button"
+                          class="card-flip"
+                          [attr.aria-pressed]="flipped().has(card.photoId)"
+                          [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
+                          (click)="toggleFlip(card)"
+                        >
+                          <mat-icon>flip</mat-icon>
+                          Flip
+                        </button>
+                        <button
+                          mat-flat-button
+                          type="button"
+                          class="card-zoom"
+                          [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
+                          (click)="zoomCard(card)"
+                        >
+                          <mat-icon>zoom_in</mat-icon>
+                          Zoom
+                        </button>
+                      </span>
+                    </div>
                     <figcaption>
-                      <span class="card-player">{{ card.player }}</span>
-                      <span class="card-title">{{ cardTitle(card) }}@if (card.variety) { · {{ card.variety }}}</span>
-                      @if (card.grade) {
-                        <span class="card-grade">PSA {{ card.grade }}</span>
+                      <span class="card-details">
+                        <span class="card-player">{{ card.player }}</span>
+                        <span class="card-title">{{ cardTitle(card) }}@if (card.variety) { · {{ card.variety }}}</span>
+                        @if (card.grade) {
+                          <span class="card-grade">PSA {{ card.grade }}</span>
+                        }
+                        @if (card.ebayUrl) {
+                          <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
+                            eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
+                            <span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                          </a>
+                        }
+                      </span>
+                      @if (auth.isAdmin()) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="card-edit"
+                          [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
+                          matTooltip="Edit card"
+                          (click)="editCard(card)"
+                        >
+                          <mat-icon>edit</mat-icon>
+                        </button>
                       }
                     </figcaption>
                   </figure>
