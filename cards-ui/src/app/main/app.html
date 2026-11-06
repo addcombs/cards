@@ -202,10 +202,12 @@
                       <figcaption>
                         <span class="card-details">
                           <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                          <span class="card-title card-line" [appFullTextTooltip]="cardTitle(card)">{{ cardTitle(card) }}</span>
+                          <span class="card-year card-line">{{ card.year }}</span>
+                          <span class="card-set card-line" [appFullTextTooltip]="card.setName">{{ card.setName }}</span>
                           @if (card.variety) {
                             <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
                           }
+                          <span class="card-number card-line" [appFullTextTooltip]="'#' + card.cardNumber">#{{ card.cardNumber }}</span>
                           @if (card.grade) {
                             <span class="card-grade">PSA {{ card.grade }}</span>
                           }

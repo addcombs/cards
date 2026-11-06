@@ -152,8 +152,8 @@ describe('App', () => {
     ).map((player) => player.textContent!.trim());
     expect(players('Baseball')).toEqual(['Derek Jeter']);
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
-    expect(baseball.querySelector('.card-title')?.textContent?.trim()).toBe('1992 Topps Gold #141');
-    expect(baseball.querySelector('.card-variety')?.textContent?.trim()).toBe('Rookie');
+    const details = Array.from<HTMLElement>(baseball.querySelectorAll('.card-details .card-line')).map((line) => line.textContent!.trim());
+    expect(details).toEqual(['Derek Jeter', '1992', 'Topps Gold', 'Rookie', '#141']);
     expect(baseball.querySelector('.card-grade')?.textContent?.trim()).toBe('PSA EX-MT 6');
 
     const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));
