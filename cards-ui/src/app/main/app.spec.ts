@@ -246,6 +246,11 @@ describe('App', () => {
     const headers = Array.from<HTMLElement>(baseball.querySelectorAll('mat-expansion-panel-header'));
     expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'false']);
     expect(headers[1].textContent).toContain('2 cards');
+    // Only the sold cards are stamped.
+    const stamped = Array.from<HTMLElement>(baseball.querySelectorAll('figure.sport-card'))
+      .filter((figure) => figure.querySelector('.card-sold'))
+      .map((figure) => figure.querySelector('.card-player')!.textContent!.trim());
+    expect(stamped).toEqual(['Dave Parker', 'George Brett']);
     headers[1].click();
     fixture.detectChanges();
     expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'true']);
