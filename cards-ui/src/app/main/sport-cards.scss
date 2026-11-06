@@ -124,11 +124,19 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+// One line each; longer text ends in an ellipsis, with the whole of it in a tooltip.
+.card-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .card-player {
   font-weight: 700;
 }
 
-.card-title {
+.card-title,
+.card-variety {
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.875rem;
 }

@@ -20,6 +20,7 @@ import { ApiStatusService } from './api-status/api-status.service';
 import { Card, CardService, cardPhotoUrl } from './cards/card.service';
 import { CardEditComponent } from './cards/card-edit';
 import { CardZoomComponent, CardZoomData } from './cards/card-zoom';
+import { FullTextTooltipDirective } from './cards/full-text-tooltip';
 import { apiUrl } from '../api-url';
 import { APP_DISPLAY_NAME, DEVELOPER_NAME } from './app-name';
 import { AboutDialogComponent } from './about/about-dialog';
@@ -33,7 +34,7 @@ export interface Sport {
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, RegistrationComponent, ToolbarBackgroundComponent],
+  imports: [MatButtonModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
