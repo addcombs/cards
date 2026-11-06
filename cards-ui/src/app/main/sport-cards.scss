@@ -1,4 +1,4 @@
-// The sport tabs' card grid, flip and captions. Kept apart from app.scss so each stays within the component style budget.
+// The sport tabs' card grid, flip, zoom button and captions. Kept apart from app.scss so each stays within the component style budget.
 
 .sport-tabs {
   margin-top: 32px;
@@ -27,7 +27,23 @@
 // The PSA slab photos are 3:5 portraits; the back is pre-turned so it reads correctly once flipped.
 .card-photo {
   position: relative;
+}
+
+// The whole photo is the flip button.
+.card-flip {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
   perspective: 1200px;
+}
+
+.card-flip:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 4px;
 }
 
 .card-faces {
@@ -57,36 +73,31 @@
   transform: rotateY(180deg);
 }
 
-// Flip and Zoom show on hover or keyboard focus, and always on touch screens, which cannot hover.
-.card-actions {
+// Zoom shows in the corner, clear of the slab's label, on hover or keyboard focus, and always on touch
+// screens, which cannot hover.
+.card-zoom {
   position: absolute;
-  inset: auto 0 12px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  opacity: 0;
+  right: 8px;
+  bottom: 8px;
   z-index: 1;
+  opacity: 0;
   transition: opacity 150ms;
 }
 
-.card-photo:hover .card-actions,
-.card-photo:focus-within .card-actions {
+.card-photo:hover .card-zoom,
+.card-photo:focus-within .card-zoom {
   opacity: 1;
 }
 
 @media (hover: none) {
-  .card-actions {
+  .card-zoom {
     opacity: 1;
   }
 }
 
-.card-actions button {
-  box-shadow: var(--mat-sys-level2);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .card-faces,
-  .card-actions {
+  .card-zoom {
     transition: none;
   }
 }

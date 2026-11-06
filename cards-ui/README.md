@@ -8,8 +8,8 @@ filled with the theme's primary and secondary colors, so it follows light/dark m
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
 menu, each showing that sport's cards from `/api/cards`. A card shows the front of its PSA slab;
-hovering over it (or focusing it, and always on touch screens) shows Flip, which turns it to the
-back, and Zoom, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with
+clicking it turns it to the back and again to the front. Hovering over it (or focusing it, and always
+on touch screens) shows a small zoom button in its corner, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with
 the buttons, mouse wheel or pinch and pan by dragging, from the larger `-zoom.jpg` photos. A card with
 an eBay listing URL links to it. Members of the Cognito group `admins` also see a pencil button under
 each card, which opens a dialog to edit its details (`src/app/main/cards/card-edit.ts`); the API

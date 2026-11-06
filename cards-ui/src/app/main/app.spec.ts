@@ -167,7 +167,7 @@ describe('App', () => {
     expect(front.alt).toBe('Front of Michael Jordan, 1992 Topps Gold #141');
     expect(back.getAttribute('aria-hidden')).toBe('true');
     const flip = photo.querySelector('button.card-flip') as HTMLButtonElement;
-    expect(flip.textContent).toContain('Flip');
+    expect(flip.contains(front)).toBe(true);
     expect(flip.getAttribute('aria-pressed')).toBe('false');
     expect(flip.getAttribute('aria-label')).toBe('Flip Michael Jordan, 1992 Topps Gold #141 to the back');
 
@@ -193,7 +193,7 @@ describe('App', () => {
     (fixture.nativeElement.querySelector('button.card-flip') as HTMLButtonElement).click();
     fixture.detectChanges();
     const zoom = fixture.nativeElement.querySelector('button.card-zoom') as HTMLButtonElement;
-    expect(zoom.textContent).toContain('Zoom');
+    expect(zoom.textContent?.trim()).toBe('zoom_in');
     expect(zoom.getAttribute('aria-label')).toBe('Zoom Derek Jeter, 1992 Topps Gold #141');
     zoom.click();
     fixture.detectChanges();

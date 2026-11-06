@@ -176,35 +176,30 @@
                 @for (card of cardsBySport().get(sport.label); track card.photoId) {
                   <figure class="sport-card">
                     <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
-                      <span class="card-faces">
-                        <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
-                          [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
-                        <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
-                          [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
-                      </span>
-                      <span class="card-actions">
-                        <button
-                          mat-flat-button
-                          type="button"
-                          class="card-flip"
-                          [attr.aria-pressed]="flipped().has(card.photoId)"
-                          [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
-                          (click)="toggleFlip(card)"
-                        >
-                          <mat-icon>flip</mat-icon>
-                          Flip
-                        </button>
-                        <button
-                          mat-flat-button
-                          type="button"
-                          class="card-zoom"
-                          [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
-                          (click)="zoomCard(card)"
-                        >
-                          <mat-icon>zoom_in</mat-icon>
-                          Zoom
-                        </button>
-                      </span>
+                      <button
+                        type="button"
+                        class="card-flip"
+                        [attr.aria-pressed]="flipped().has(card.photoId)"
+                        [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
+                        (click)="toggleFlip(card)"
+                      >
+                        <span class="card-faces">
+                          <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                            [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
+                          <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                            [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
+                        </span>
+                      </button>
+                      <button
+                        mat-mini-fab
+                        type="button"
+                        class="card-zoom"
+                        matTooltip="Zoom"
+                        [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
+                        (click)="zoomCard(card)"
+                      >
+                        <mat-icon>zoom_in</mat-icon>
+                      </button>
                     </div>
                     <figcaption>
                       <span class="card-details">
