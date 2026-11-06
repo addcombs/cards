@@ -30,7 +30,7 @@ from the new folder:
 1. `scripts\create-cognito-pool.ps1` - the app's user pool, client and sign-in domain
 2. `scripts\apply-migrations.ps1` - its schema and tables in the shared database
 3. `scripts\start-all.ps1` - theme palettes, build, tests, and the app at http://localhost:4200/
-4. `scripts\brand-managed-login.ps1` - the sign-in page in the app's colors
+4. `scripts\brand-managed-login.ps1` - the sign-in page in the app's colors (every deploy from main re-applies them, so it keeps matching `project.json`'s theme)
 5. `scripts\build-lambda.ps1`, `scripts\deploy-api.ps1`, then `scripts\create-function-url.ps1` -
    the API on Lambda
 6. `scripts\request-certificate.ps1` - add the CNAMEs it prints at the DNS provider and re-run it

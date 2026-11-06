@@ -166,6 +166,25 @@ jobs:
           id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / \
             --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$dist_id" --id "$id"
+      # So the sign-in page always has the site's colors, as scripts\brand-managed-login.ps1 does.
+      - name: Brand the sign-in page with the theme colors
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          . ./scripts/managed-login-style.ps1
+          $project = Get-Content project.json -Raw | ConvertFrom-Json
+          $style = Get-ManagedLoginStyle cards-ui/src/app/theme/generated_theme-colors.scss config/managed-login-branding.json `
+            $project.theme.primary $project.theme.secondary
+          $filled = Join-Path $env:RUNNER_TEMP 'managed-login-branding.json'
+          [System.IO.File]::WriteAllText($filled, $style)
+          $settings = Get-Content cards-ui/src/app/project.settings.ts -Raw
+          $pool = [regex]::Match($settings, "userPoolId: '([^']+)'").Groups[1].Value
+          $client = [regex]::Match($settings, "userPoolClientId: '([^']+)'").Groups[1].Value
+          $id = aws cognito-idp describe-managed-login-branding-by-client --user-pool-id $pool --client-id $client `
+            --query ManagedLoginBranding.ManagedLoginBrandingId --output text
+          aws cognito-idp update-managed-login-branding --user-pool-id $pool --managed-login-branding-id $id `
+            --settings "file://$filled" --query ManagedLoginBranding.LastModifiedDate --output text
       - name: Check the live site
         run: |
           curl --fail --silent --show-error --output /dev/null "https://$DOMAIN/"

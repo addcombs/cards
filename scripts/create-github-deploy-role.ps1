@@ -1,7 +1,7 @@
 # Lets GitHub Actions deploy the app (.github/workflows/ci.yml) without stored AWS keys: an IAM role
 # that only pushes to main of this repository (the git origin) can assume through GitHub's OIDC
-# provider, allowed only to upload the UI, refresh its CloudFront distribution, and publish new
-# API code to the existing function. The function's settings, including the database login, stay as
+# provider, allowed only to upload the UI, refresh its CloudFront distribution, apply the theme
+# colors to the Cognito sign-in page, and publish new API code to the existing function. The function's settings, including the database login, stay as
 # deploy-api.ps1 set them. Safe to re-run: the provider is reused and the role's policies are
 # replaced. Afterwards add the printed role ARN to the GitHub repository as the Actions variable
 # AWS_DEPLOY_ROLE_ARN. Log: logs\github-deploy-role.log
@@ -50,6 +50,7 @@ $distId = Invoke-AwsCli @('cloudfront','list-distributions','--query',"Distribut
 if (-not $distId -or $distId -eq 'None') { Fail "No CloudFront distribution for $domain. Run scripts\create-cloudfront.ps1 first." }
 $uiBucket = UiBucket $account
 $function = "arn:aws:lambda:${awsRegion}:${account}:function:$($names.Function)"
+$userPool = "arn:aws:cognito-idp:${awsRegion}:${account}:userpool/$((Get-CognitoIds).userPoolId)"
 $policy = Write-Json (Join-Path $logs 'github-deploy-policy.json') @{
   Version = '2012-10-17'
   Statement = @(
@@ -57,6 +58,8 @@ $policy = Write-Json (Join-Path $logs 'github-deploy-policy.json') @{
     @{ Sid = 'UiWrite'; Effect = 'Allow'; Action = @('s3:PutObject','s3:DeleteObject'); Resource = "arn:aws:s3:::$uiBucket/*" },
     @{ Sid = 'UiRefresh'; Effect = 'Allow'; Action = @('cloudfront:CreateInvalidation','cloudfront:GetInvalidation'); Resource = "arn:aws:cloudfront::${account}:distribution/$distId" },
     @{ Sid = 'FindDistribution'; Effect = 'Allow'; Action = 'cloudfront:ListDistributions'; Resource = '*' },
+    @{ Sid = 'LoginBranding'; Effect = 'Allow'; Resource = $userPool
+       Action = @('cognito-idp:DescribeManagedLoginBrandingByClient','cognito-idp:UpdateManagedLoginBranding') },
     # Lambda reads the uploaded zip with the caller's permissions.
     @{ Sid = 'ApiUpload'; Effect = 'Allow'; Action = @('s3:PutObject','s3:GetObject'); Resource = "arn:aws:s3:::$(DeployBucket $account)/$($names.DeployKey)" },
     @{ Sid = 'ApiPublish'; Effect = 'Allow'; Resource = @($function, "${function}:*")
@@ -64,6 +67,6 @@ $policy = Write-Json (Join-Path $logs 'github-deploy-policy.json') @{
   )
 }
 Invoke-AwsCli @('iam','put-role-policy','--role-name',$roleName,'--policy-name','deploy','--policy-document',"file://$policy") | Out-Null
-Step "permissions set: UI bucket $uiBucket, distribution $distId, function $($names.Function)"
+Step "permissions set: UI bucket $uiBucket, distribution $distId, user pool $userPool, function $($names.Function)"
 Step "DONE. In GitHub, $repo > Settings > Secrets and variables > Actions > Variables, add AWS_DEPLOY_ROLE_ARN = $roleArn"
 Read-Host 'Press Enter to close'
