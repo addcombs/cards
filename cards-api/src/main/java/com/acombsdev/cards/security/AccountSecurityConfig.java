@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,8 +38,11 @@ public class AccountSecurityConfig {
         return http
                 .securityMatcher("/api/account", "/api/account/**", "/api/cards", "/api/cards/**")
                 .cors(Customizer.withDefaults())
+                // An explicit path matcher: given plain strings, Spring Security inspects the servlet's
+                // URL mappings, which the Lambda adapter leaves null, failing every request there.
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.PUT, "/api/cards/**").hasAuthority("GROUP_" + ADMINS_GROUP)
+                        .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.PUT, "/api/cards/**"))
+                        .hasAuthority("GROUP_" + ADMINS_GROUP)
                         .anyRequest().authenticated())
                 // Stateless bearer-token API: no session exists, so skip session-fixation protection.
                 // (On AWS Lambda the serverless request does not support changeSessionId, and
