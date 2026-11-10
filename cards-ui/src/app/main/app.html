@@ -218,32 +218,52 @@
                                       </button>
                                     </div>
                                     <figcaption>
-                                      <span class="card-details">
-                                        <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                                        <span class="card-year card-line">{{ card.year }}</span>
-                                        <span class="card-set card-line" [appFullTextTooltip]="card.setName">{{ card.setName }}</span>
-                                        @if (card.variety) {
-                                          <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
-                                        }
-                                        <span class="card-number card-line" [appFullTextTooltip]="'#' + card.cardNumber">#{{ card.cardNumber }}</span>
-                                        @if (card.ebayUrl) {
-                                          <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
-                                            eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
-                                            <span class="cdk-visually-hidden"> (opens in a new tab)</span>
-                                          </a>
-                                        }
+                                      <!-- Laid out like the PSA label on the slab: year and set, any variety, then the player on the left
+                                           above a barcode; card number, grade and cert number down the right. -->
+                                      <span class="card-label">
+                                        <span class="card-label-left">
+                                          <span class="card-set card-line" [appFullTextTooltip]="card.year + ' ' + card.setName">{{ card.year }} {{ card.setName }}</span>
+                                          @if (card.variety) {
+                                            <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
+                                          }
+                                          <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
+                                          <span class="card-barcode" aria-hidden="true"></span>
+                                        </span>
+                                        <span class="card-label-right">
+                                          <span class="card-number">#{{ card.cardNumber }}</span>
+                                          @if (card.grade) {
+                                            @let grade = gradeParts(card.grade);
+                                            <span class="card-grade-name">{{ grade.name }}</span>
+                                            @if (grade.number) {
+                                              <span class="card-grade-number">{{ grade.number }}</span>
+                                            }
+                                          }
+                                          @if (card.certNumber) {
+                                            <span class="card-cert"><span class="cdk-visually-hidden">PSA cert </span>{{ card.certNumber }}</span>
+                                          }
+                                        </span>
                                       </span>
-                                      @if (auth.isAdmin()) {
-                                        <button
-                                          mat-icon-button
-                                          type="button"
-                                          class="card-edit"
-                                          [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
-                                          matTooltip="Edit card"
-                                          (click)="editCard(card)"
-                                        >
-                                          <mat-icon>edit</mat-icon>
-                                        </button>
+                                      @if (auth.isAdmin() || card.ebayUrl) {
+                                        <span class="card-actions">
+                                          @if (auth.isAdmin()) {
+                                            <button
+                                              mat-icon-button
+                                              type="button"
+                                              class="card-edit"
+                                              [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
+                                              matTooltip="Edit card"
+                                              (click)="editCard(card)"
+                                            >
+                                              <mat-icon>edit</mat-icon>
+                                            </button>
+                                          }
+                                          @if (card.ebayUrl) {
+                                            <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
+                                              eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
+                                              <span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                                            </a>
+                                          }
+                                        </span>
                                       }
                                     </figcaption>
                                   </figure>

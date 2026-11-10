@@ -184,24 +184,49 @@
 
 .sport-card figcaption {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 4px;
 }
 
-.card-details {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  line-height: 1.4;
+// A copy of the slab's PSA label: black type on white inside a red frame, in every theme, as on the
+// slab itself.
+.card-label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 5px solid #e3262f;
+  border-radius: 4px;
+  background: #fff;
+  color: #1a1a1a;
+  font: 400 0.8125rem / 1.25 Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
 }
 
-// Only admins see it; pulled up so the caption keeps its height.
-.card-edit {
-  flex-shrink: 0;
-  margin: -8px -8px 0 0;
-  color: var(--mat-sys-on-surface-variant);
+.card-label-left,
+.card-label-right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-label-right {
+  align-items: flex-end;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// The cert number sits level with the barcode at the bottom of the label.
+.card-barcode {
+  height: 14px;
+  width: min(100%, 96px);
+  margin-top: auto;
+  padding-top: 4px;
+  background: repeating-linear-gradient(to right, #1a1a1a 0 1px, transparent 1px 3px, #1a1a1a 3px 5px, transparent 5px 6px) content-box;
+}
+
+.card-cert {
+  margin-top: auto;
 }
 
 // One line each; longer text ends in an ellipsis, with the whole of it in a tooltip.
@@ -211,21 +236,20 @@
   white-space: nowrap;
 }
 
-.card-player {
-  font-weight: 700;
+// Admins' edit button on the bottom left, then any eBay link.
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
 }
 
-.card-year,
-.card-set,
-.card-variety,
-.card-number {
+.card-edit {
+  margin-left: -8px;
   color: var(--mat-sys-on-surface-variant);
-  font-size: 0.875rem;
 }
 
 .card-ebay {
-  align-self: flex-start;
   color: var(--mat-sys-primary);
   font-size: 0.875rem;
 }
-

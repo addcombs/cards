@@ -11,11 +11,11 @@ menu, each showing that sport's cards from `/api/cards` in two expandable panels
 listing URL under Current eBay Listings, then the rest under Sold, both open at first,
 each split into a panel per PSA grade, highest first. The cards fly in one after another as a panel
 opens, and sold cards are stamped SOLD.
-A card shows the front of its PSA slab above its player, year, set, variety and card number, each on
-a line of its own; clicking it turns it to the back and again to the front. Hovering over it (or focusing it, and always
+A card shows the front of its PSA slab above a copy of the slab's label: year and set, any variety
+and the player on the left, card number, grade and PSA cert number on the right. Clicking the photo turns it to the back and again to the front. Hovering over it (or focusing it, and always
 on touch screens) shows a small zoom button in its corner, which opens it in a dialog (`src/app/main/cards/card-zoom.ts`) to zoom up to 400% with
 the buttons, mouse wheel or pinch and pan by dragging, from the larger `-zoom.jpg` photos. A card with
-an eBay listing URL links to it. Members of the Cognito group `admins` also see a pencil button under
+an eBay listing URL links to it. Members of the Cognito group `admins` also see a pencil button at the bottom left of
 each card, which opens a dialog to edit its details (`src/app/main/cards/card-edit.ts`); the API
 checks the group too. The photos load from `photosUrl` in `src/app/project.settings.ts`:
 the UI's own host at `/photos/`, which CloudFront serves from the photo bucket.

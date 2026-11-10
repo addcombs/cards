@@ -193,6 +193,12 @@ export class App {
     });
   }
 
+  /** A grade as the PSA label prints it: its name over its number, e.g. "NM-MT" over "8". */
+  protected gradeParts(grade: string): { name: string; number: string | null } {
+    const match = /^(.*?)\s*(\d+(?:\.\d+)?)$/.exec(grade);
+    return match ? { name: match[1], number: match[2] } : { name: grade, number: null };
+  }
+
   protected cardTitle(card: Card): string {
     return `${card.year} ${card.setName} #${card.cardNumber}`;
   }

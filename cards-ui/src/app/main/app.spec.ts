@@ -152,8 +152,9 @@ describe('App', () => {
     ).map((player) => player.textContent!.trim());
     expect(players('Baseball')).toEqual(['Derek Jeter']);
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
-    const details = Array.from<HTMLElement>(baseball.querySelectorAll('.card-details .card-line')).map((line) => line.textContent!.trim());
-    expect(details).toEqual(['Derek Jeter', '1992', 'Topps Gold', 'Rookie', '#141']);
+    const lines = (side: string) => Array.from<HTMLElement>(baseball.querySelectorAll(`.card-label-${side} > span`)).map((line) => line.textContent!.trim());
+    expect(lines('left')).toEqual(['1992 Topps Gold', 'Rookie', 'Derek Jeter', '']);
+    expect(lines('right')).toEqual(['#141', 'EX-MT', '6', 'PSA cert 97041266']);
     expect(baseball.querySelector('.grade-group-title')?.textContent?.trim()).toBe('PSA EX-MT 6');
 
     const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));
@@ -287,7 +288,10 @@ describe('App', () => {
       { title: 'PSA NM-MT 8', count: '2 cards', open: 'true', players: ['Dave Parker', 'George Brett'] },
       { title: 'Ungraded', count: '1 card', open: 'true', players: ['Nolan Ryan'] },
     ]);
-    expect(sold.querySelector('.card-grade')).toBeNull();
+    // Each label shows its grade's name over its number, and an ungraded card's shows neither.
+    const labelGrades = Array.from<HTMLElement>(sold.querySelectorAll('.card-label-right'))
+      .map((label) => Array.from(label.querySelectorAll('.card-grade-name, .card-grade-number')).map((el) => el.textContent!.trim()));
+    expect(labelGrades).toEqual([['MINT', '9'], ['NM-MT', '8'], ['NM-MT', '8'], []]);
   });
 
   it('lets only admins edit a card, saving trimmed details and closing on success', async () => {
