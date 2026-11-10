@@ -118,16 +118,20 @@ mat-sidenav mat-nav-list {
   flex-shrink: 0;
   padding: 0 24px;
   border-top: 1px solid var(--mat-sys-primary);
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-primary);
+  // The same fixed white-to-crimson fade as the toolbar, under the same pixel mosaic: the credit in
+  // crimson on the white, the API status in white on the crimson.
+  background: linear-gradient(to right, #fff, #DC143C);
+  color: #fff;
 }
 
 .app-credit {
   margin-right: auto;
+  color: #DC143C;
 }
 
 .app-credit-name {
-  color: var(--mat-sys-secondary);
+  color: inherit;
+  font-weight: 600;
   text-decoration: none;
 }
 
