@@ -154,7 +154,13 @@ describe('App', () => {
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const lines = (side: string) => Array.from<HTMLElement>(baseball.querySelectorAll(`.card-label-${side} > span`)).map((line) => line.textContent!.trim());
     expect(lines('left')).toEqual(['1992 Topps Gold', 'Rookie', 'Derek Jeter']);
-    expect(lines('right')).toEqual(['#141', 'EX-MT', '6', 'PSA cert 97041266']);
+    expect(lines('right')).toEqual(['#141', 'EX-MT', '6']);
+    // The cert number links to PSA's page for it.
+    const cert: HTMLAnchorElement = baseball.querySelector('.card-label-right > a.card-cert')!;
+    expect(cert.textContent!.replace(/\s+/g, ' ').trim()).toBe('PSA cert 97041266 (opens in a new tab)');
+    expect(cert.href).toBe('https://www.psacard.com/cert/97041266/psa');
+    expect(cert.target).toBe('_blank');
+    expect(cert.rel).toBe('noopener');
     expect(baseball.querySelector('.grade-group-title')?.textContent?.trim()).toBe('PSA EX-MT 6');
 
     const tabs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]'));

@@ -18,7 +18,7 @@ import { RegistrationComponent } from '../auth/registration';
 import { AccountService } from './account/account.service';
 import { AccountDetailsComponent } from './account/account-details';
 import { ApiStatusService } from './api-status/api-status.service';
-import { Card, CardService, cardPhotoUrl } from './cards/card.service';
+import { Card, CardService, cardPhotoUrl, psaCertUrl } from './cards/card.service';
 import { CardEditComponent } from './cards/card-edit';
 import { CardZoomComponent, CardZoomData } from './cards/card-zoom';
 import { FullTextTooltipDirective } from './cards/full-text-tooltip';
@@ -115,6 +115,7 @@ export class App {
   /** Photo IDs of the cards turned over to show their backs. */
   protected readonly flipped = signal<ReadonlySet<string>>(new Set());
   protected readonly cardPhotoUrl = cardPhotoUrl;
+  protected readonly psaCertUrl = psaCertUrl;
   private readonly dialog = inject(MatDialog);
   private accountDialog: MatDialogRef<AccountDetailsComponent> | null = null;
 

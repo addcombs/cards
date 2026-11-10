@@ -210,9 +210,17 @@
   white-space: nowrap;
 }
 
-// The cert number sits at the bottom of the label.
+// The cert number sits at the bottom of the label, linking to PSA's page for it.
 .card-cert {
   margin-top: auto;
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.card-cert:hover {
+  color: var(--mat-sys-primary);
+  text-decoration-style: solid;
 }
 
 // One line each; longer text ends in an ellipsis, with the whole of it in a tooltip.

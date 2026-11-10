@@ -250,7 +250,9 @@
                                             }
                                           }
                                           @if (card.certNumber) {
-                                            <span class="card-cert"><span class="cdk-visually-hidden">PSA cert </span>{{ card.certNumber }}</span>
+                                            <a class="card-cert" [href]="psaCertUrl(card.certNumber)" target="_blank" rel="noopener" matTooltip="View on PSA">
+                                              <span class="cdk-visually-hidden">PSA cert </span>{{ card.certNumber }}<span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                                            </a>
                                           }
                                         </span>
                                       </span>

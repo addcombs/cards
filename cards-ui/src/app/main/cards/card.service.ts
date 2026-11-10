@@ -33,6 +33,11 @@ export function cardPhotoUrl(card: Card, side: CardSide, zoom = false): string {
   return `${PROJECT_SETTINGS.photosUrl}${encodeURIComponent(card.photoId)}/${side}${zoom ? '-zoom' : ''}.jpg`;
 }
 
+/** PSA's page verifying a cert number, showing the card's grade and population. */
+export function psaCertUrl(certNumber: string): string {
+  return `https://www.psacard.com/cert/${encodeURIComponent(certNumber)}/psa`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CardService {
   private readonly http = inject(HttpClient);
