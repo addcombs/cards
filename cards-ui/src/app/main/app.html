@@ -61,6 +61,15 @@
         </a>
       }
     </mat-nav-list>
+    <mat-divider />
+    <mat-nav-list class="site-links" aria-label="Other sites">
+      <a mat-list-item href="https://www.psacard.com" target="_blank" rel="noopener">
+        <span matListItemTitle><img class="site-logo" src="psa-logo.svg" alt="PSA (opens in a new tab)" /></span>
+      </a>
+      <a mat-list-item href="https://www.ebay.com" target="_blank" rel="noopener">
+        <span matListItemTitle><img class="site-logo" src="ebay-logo.svg" alt="eBay (opens in a new tab)" /></span>
+      </a>
+    </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content class="app-content">
@@ -78,12 +87,6 @@
       </button>
       <span class="app-title">{{ appName }}</span>
       <span class="spacer"></span>
-      <a class="site-link" href="https://www.psacard.com" target="_blank" rel="noopener" matTooltip="PSA">
-        <img src="psa-logo.svg" alt="PSA (opens in a new tab)" />
-      </a>
-      <a class="site-link" href="https://www.ebay.com" target="_blank" rel="noopener" matTooltip="eBay">
-        <img src="ebay-logo.svg" alt="eBay (opens in a new tab)" />
-      </a>
       <div class="brightness-control" [hidden]="!brightnessOpen()">
           <input
             #brightnessSlider

@@ -59,16 +59,8 @@ mat-sidenav mat-nav-list {
   flex: 1 1 auto;
 }
 
-// Logo links out to PSA and eBay, sized to sit among the toolbar's icon buttons.
-.site-link {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.site-link img {
+// Logo links out to PSA and eBay, below the sports in the sidenav.
+.site-logo {
   display: block;
   height: 18px;
 }

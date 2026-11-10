@@ -102,10 +102,10 @@ describe('App', () => {
     expect(name.href).toBe('https://acombs-dev.com/');
   });
 
-  it('links the toolbar logos to PSA and eBay in new tabs', () => {
+  it('links the sidenav logos to PSA and eBay in new tabs', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('mat-toolbar a.site-link'));
+    const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('mat-sidenav .site-links a'));
     expect(links.map((link) => [link.href, link.target, link.querySelector('img')!.alt])).toEqual([
       ['https://www.psacard.com/', '_blank', 'PSA (opens in a new tab)'],
       ['https://www.ebay.com/', '_blank', 'eBay (opens in a new tab)'],
@@ -384,7 +384,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
-    const navItems: HTMLElement[] = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-nav-list a[mat-list-item]'));
+    const navItems: HTMLElement[] = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-nav-list:not(.site-links) a[mat-list-item]'));
     expect(navItems.map((item) => item.querySelector('[matListItemTitle]')?.textContent?.trim()))
       .toEqual(['Baseball', 'Basketball', 'Football', 'Hockey']);
     expect(navItems.map((item) => item.querySelector('[matListItemIcon]')?.textContent?.trim()))
