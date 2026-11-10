@@ -1,6 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { CELL, ToolbarBackgroundComponent, buildPixelLayers } from './toolbar-background';
 
+/** The columns of every pixel a path draws, its strips expanded. */
+function columnsIn(d: string): number[] {
+  return Array.from(d.matchAll(/M(\d+) \d+h(\d+)/g)).flatMap(([, x, length]) =>
+    Array.from({ length: Number(length) / CELL }, (_, i) => Number(x) / CELL + i));
+}
+
 describe('ToolbarBackgroundComponent', () => {
   it('renders a decorative SVG hidden from assistive technology', () => {
     const fixture = TestBed.createComponent(ToolbarBackgroundComponent);
@@ -13,8 +19,7 @@ describe('ToolbarBackgroundComponent', () => {
 
   it('is deterministic, white on the left and solid on the right', () => {
     expect(buildPixelLayers(1200, 120)).toEqual(buildPixelLayers(1200, 120));
-    const columnsOf = (opacity: number) => (buildPixelLayers(1200, 120).find((layer) => layer.opacity === opacity)?.d.match(/M\d+ /g) ?? [])
-      .map((cell) => Number(cell.slice(1)) / CELL);
+    const columnsOf = (opacity: number) => columnsIn(buildPixelLayers(1200, 120).find((layer) => layer.opacity === opacity)?.d ?? '');
     const solid = columnsOf(1);
     // Nothing behind the title, and every pixel filled in the last columns.
     const columns = 1200 / CELL;
@@ -26,8 +31,7 @@ describe('ToolbarBackgroundComponent', () => {
   });
 
   it('lays out square pixels for the bar\'s width', () => {
-    const cells = (width: number) => buildPixelLayers(width, 60).flatMap((layer) => layer.d.match(/M\d+ /g) ?? []);
-    const widest = (width: number) => Math.max(...cells(width).map((cell) => Number(cell.slice(1))));
+    const widest = (width: number) => Math.max(...buildPixelLayers(width, 60).flatMap((layer) => columnsIn(layer.d))) * CELL;
     expect(widest(360)).toBe(360 - CELL);
     expect(widest(1500)).toBe(1500 - CELL);
   });

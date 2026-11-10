@@ -6,7 +6,7 @@ export interface PixelLayer {
 }
 
 /** Each pixel's size in CSS pixels; they are drawn edge to edge so the right end is solid crimson. */
-export const CELL = 4;
+export const CELL = 2;
 /**
  * The fractions of the width where the pixels start, after the white behind the title, and where every
  * pixel is filled. Narrow bars, where the title takes most of the width, keep more white and turn to
@@ -27,21 +27,32 @@ function hash(column: number, row: number, seed: number): number {
 /**
  * Builds the pixels for a bar `width` by `height` CSS pixels: none on the left, then more and more to
  * the right until they fill it. A few faded pixels run ahead of the solid ones to soften the edge.
+ * Neighbouring pixels of a kind in a row are drawn as one strip, which keeps the paths short.
  */
 export function buildPixelLayers(width: number, height: number, seed = 26): PixelLayer[] {
   const columns = Math.ceil(width / CELL);
   const rows = Math.ceil(height / CELL);
   const { start, end } = band(width);
+  const densities = Array.from({ length: columns }, (_, column) => {
+    const x = Math.min(1, Math.max(0, ((column + 0.5) / columns - start) / (end - start)));
+    return x * x * (3 - 2 * x);
+  });
   const solid: string[] = [];
   const faded: string[] = [];
-  for (let column = 0; column < columns; column++) {
-    const x = Math.min(1, Math.max(0, ((column + 0.5) / columns - start) / (end - start)));
-    const density = x * x * (3 - 2 * x);
-    for (let row = 0; row < rows; row++) {
-      const r = hash(column, row, seed);
-      const cell = `M${column * CELL} ${row * CELL}h${CELL}v${CELL}h-${CELL}z`;
-      if (r < density) solid.push(cell);
-      else if (r < density * 1.4) faded.push(cell);
+  for (let row = 0; row < rows; row++) {
+    let kind: string[] | null = null;
+    let from = 0;
+    for (let column = 0; column <= columns; column++) {
+      const r = column < columns ? hash(column, row, seed) : 1;
+      const density = densities[column] ?? 0;
+      const next = r < density ? solid : r < density * 1.4 ? faded : null;
+      if (next === kind) continue;
+      if (kind) {
+        const length = (column - from) * CELL;
+        kind.push(`M${from * CELL} ${row * CELL}h${length}v${CELL}h-${length}z`);
+      }
+      kind = next;
+      from = column;
     }
   }
   return [
