@@ -15,6 +15,8 @@
 
 // "Current eBay Listings" and "Sold", both open at first, each an expansion panel of cards.
 .sport-groups {
+  // A thin outline on every panel: the primary colour, faded, like the line under the toolbar.
+  --panel-border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -23,6 +25,7 @@
 .sport-group {
   --mat-expansion-container-background-color: transparent;
   --mat-expansion-header-text-color: var(--mat-sys-on-surface);
+  border: var(--panel-border);
 }
 
 .sport-group-title {
@@ -37,7 +40,7 @@
   }
 }
 
-// Within each, a panel per grade, open at first.
+// Within each, a panel per grade: open at first for the listed cards, closed for the sold.
 .grade-groups {
   display: flex;
   flex-direction: column;
@@ -48,6 +51,7 @@
   --mat-expansion-container-background-color: transparent;
   --mat-expansion-header-text-color: var(--mat-sys-on-surface);
   --mat-expansion-container-elevation-shadow: none;
+  border: var(--panel-border);
 }
 
 .grade-group-title {
