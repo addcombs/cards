@@ -17,12 +17,12 @@
   border-bottom: 1px solid var(--mat-sys-primary);
 }
 
-// The main toolbar fades from solid white behind the title to solid crimson at the right, under its
-// pixel mosaic, in light and dark mode alike, so its colours are fixed rather than the theme's. The
-// buttons on the right are white against the crimson.
+// The main toolbar turns from white behind the title to crimson at the right through its pixels
+// (app-toolbar-background), in light and dark mode alike, so its colours are fixed rather than the
+// theme's. The buttons on the right are white against the crimson.
 .app-content > .app-toolbar {
   padding-block: 24px;
-  background: linear-gradient(to right, #fff, #DC143C);
+  background: #fff;
   color: #DC143C;
 }
 
@@ -118,9 +118,9 @@ mat-sidenav mat-nav-list {
   flex-shrink: 0;
   padding: 0 24px;
   border-top: 1px solid var(--mat-sys-primary);
-  // The same fixed white-to-crimson fade as the toolbar, under the same pixel mosaic: the credit in
-  // crimson on the white, the API status in white on the crimson.
-  background: linear-gradient(to right, #fff, #DC143C);
+  // The same white-to-crimson pixels as the toolbar: the credit in crimson on the white, the API status
+  // in white on the crimson.
+  background: #fff;
   color: #fff;
 }
 
