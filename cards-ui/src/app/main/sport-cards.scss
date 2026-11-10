@@ -188,8 +188,7 @@
   gap: 4px;
 }
 
-// A copy of the slab's PSA label: black type on white inside a red frame, in every theme, as on the
-// slab itself.
+// A copy of the slab's PSA label: its type inside a red frame, on the page's own background.
 .card-label {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -197,8 +196,6 @@
   padding: 6px 8px;
   border: 5px solid #e3262f;
   border-radius: 4px;
-  background: #fff;
-  color: #1a1a1a;
   font: 400 0.8125rem / 1.25 Arial, Helvetica, sans-serif;
   text-transform: uppercase;
 }
@@ -216,15 +213,7 @@
   white-space: nowrap;
 }
 
-// The cert number sits level with the barcode at the bottom of the label.
-.card-barcode {
-  height: 14px;
-  width: min(100%, 96px);
-  margin-top: auto;
-  padding-top: 4px;
-  background: repeating-linear-gradient(to right, #1a1a1a 0 1px, transparent 1px 3px, #1a1a1a 3px 5px, transparent 5px 6px) content-box;
-}
-
+// The cert number sits at the bottom of the label.
 .card-cert {
   margin-top: auto;
 }

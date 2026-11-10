@@ -153,7 +153,7 @@ describe('App', () => {
     expect(players('Baseball')).toEqual(['Derek Jeter']);
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const lines = (side: string) => Array.from<HTMLElement>(baseball.querySelectorAll(`.card-label-${side} > span`)).map((line) => line.textContent!.trim());
-    expect(lines('left')).toEqual(['1992 Topps Gold', 'Rookie', 'Derek Jeter', '']);
+    expect(lines('left')).toEqual(['1992 Topps Gold', 'Rookie', 'Derek Jeter']);
     expect(lines('right')).toEqual(['#141', 'EX-MT', '6', 'PSA cert 97041266']);
     expect(baseball.querySelector('.grade-group-title')?.textContent?.trim()).toBe('PSA EX-MT 6');
 

@@ -218,17 +218,15 @@
                                       </button>
                                     </div>
                                     <figcaption>
-                                      <!-- Laid out like the PSA label on the slab: year and set, any variety, then the player on the left
-                                           above a barcode; card number, grade and cert number down the right. -->
+                                      <!-- Laid out like the PSA label on the slab: year and set, any variety, then the player on the left;
+                                           card number, grade and cert number down the right. -->
                                       <span class="card-label">
                                         <span class="card-label-left">
                                           <span class="card-set card-line" [appFullTextTooltip]="card.year + ' ' + card.setName">{{ card.year }} {{ card.setName }}</span>
                                           @if (card.variety) {
                                             <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
                                           }
-                                          <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                                          <span class="card-barcode" aria-hidden="true"></span>
-                                        </span>
+                                          <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>                                        </span>
                                         <span class="card-label-right">
                                           <span class="card-number">#{{ card.cardNumber }}</span>
                                           @if (card.grade) {
