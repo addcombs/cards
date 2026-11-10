@@ -144,10 +144,6 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #moreMenu="matMenu" xPosition="before">
-        <a mat-menu-item [href]="apiDocsUrl" target="_blank" rel="noopener">
-          <mat-icon>api</mat-icon>
-          <span>API docs</span>
-        </a>
         <button mat-menu-item type="button" (click)="openAbout()">
           <mat-icon>info</mat-icon>
           <span>About</span>
@@ -294,14 +290,17 @@
     <footer class="app-footer">
       <app-toolbar-background />
       <span class="app-credit">Developed by <a class="app-credit-name" href="https://acombs-dev.com/">{{ developerName }}</a></span>
-      <span>API</span>
-      <mat-icon
-        class="api-status"
-        [class.api-down]="apiStatus() === 'down'"
-        role="img"
-        [attr.aria-label]="apiStatusLabel()"
-        [matTooltip]="apiStatusLabel()"
-      >{{ apiStatus() === 'up' ? 'cloud_done' : apiStatus() === 'down' ? 'cloud_off' : 'cloud_queue' }}</mat-icon>
+      <a class="api-link" [href]="apiDocsUrl" target="_blank" rel="noopener">
+        <span>API</span>
+        <mat-icon
+          class="api-status"
+          [class.api-down]="apiStatus() === 'down'"
+          role="img"
+          [attr.aria-label]="apiStatusLabel()"
+          [matTooltip]="apiStatusLabel()"
+        >{{ apiStatus() === 'up' ? 'cloud_done' : apiStatus() === 'down' ? 'cloud_off' : 'cloud_queue' }}</mat-icon>
+        <span class="cdk-visually-hidden">docs (opens in a new tab)</span>
+      </a>
     </footer>
   </mat-sidenav-content>
 </mat-sidenav-container>
