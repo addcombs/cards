@@ -51,10 +51,35 @@ export function buildPixelLayers(seed = 26): PixelLayer[] {
 
 const LAYERS = buildPixelLayers();
 
+/** The width of the solid end, in CSS pixels, pinned to the right whatever the bar's width. */
+export const SOLID_WIDTH = 200;
+/** How far into the solid end, as a fraction of it, every cell is filled. */
+const SOLID_FULL = 0.45;
+
+/**
+ * Builds the solid primary end: full-size cells drawn edge to edge, a few at its left edge, more and
+ * more, then all of them, so the mosaic turns to solid colour behind the buttons on the right.
+ */
+export function buildSolidEnd(seed = 27): string {
+  const next = random(seed);
+  const columns = SOLID_WIDTH / CELL;
+  const cells: string[] = [];
+  for (let column = 0; column < columns; column++) {
+    const x = Math.min(1, column / (columns * SOLID_FULL));
+    const density = x * x * (3 - 2 * x);
+    for (let row = 0; row < ROWS; row++) {
+      if (next() < density) cells.push(`M${column * CELL} ${row * CELL}h${CELL}v${CELL}h-${CELL}z`);
+    }
+  }
+  return cells.join('');
+}
+
+const SOLID_END = buildSolidEnd();
+
 /**
  * Decorative toolbar and footer background drawn inline so it follows the live theme: cells are filled
  * with the Material primary and secondary system colors, so light/dark mode and the brightness
- * slider recolor it without regenerating an image.
+ * slider recolor it without regenerating an image. The mosaic ends in solid primary at the right.
  */
 @Component({
   selector: 'app-toolbar-background',
@@ -68,6 +93,16 @@ const LAYERS = buildPixelLayers();
       @for (layer of layers; track $index) {
         <path [class]="layer.tone" [attr.fill-opacity]="layer.opacity" [attr.d]="layer.d" />
       }
+    </svg>
+    <svg
+      class="solid-end"
+      [style.width.px]="solidWidth"
+      [attr.viewBox]="'0 0 ' + solidWidth + ' 120'"
+      preserveAspectRatio="xMaxYMid slice"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path class="primary" [attr.d]="solidEnd" />
     </svg>
   `,
   styles: `
@@ -83,6 +118,11 @@ const LAYERS = buildPixelLayers();
       width: 100%;
       height: 100%;
     }
+    .solid-end {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
     .primary {
       fill: var(--mat-sys-primary);
     }
@@ -94,4 +134,6 @@ const LAYERS = buildPixelLayers();
 })
 export class ToolbarBackgroundComponent {
   protected readonly layers = LAYERS;
+  protected readonly solidEnd = SOLID_END;
+  protected readonly solidWidth = SOLID_WIDTH;
 }
