@@ -31,6 +31,8 @@ import { ToolbarBackgroundComponent } from '../theme/toolbar-background';
 export interface Sport {
   label: string;
   icon: string;
+  /** The toolbar logo while the sport's tab is selected, in public/. */
+  logo: string;
 }
 
 /** Cards shown together in a sport's tab, in a panel that starts open, by grade. */
@@ -93,10 +95,10 @@ export class App {
   protected readonly registrationOpen = signal(false);
   protected readonly brightnessOpen = signal(false);
   protected readonly sports: Sport[] = [
-    { label: 'Baseball', icon: 'sports_baseball' },
-    { label: 'Basketball', icon: 'sports_basketball' },
-    { label: 'Football', icon: 'sports_football' },
-    { label: 'Hockey', icon: 'sports_hockey' },
+    { label: 'Baseball', icon: 'sports_baseball', logo: 'logo.svg' },
+    { label: 'Basketball', icon: 'sports_basketball', logo: 'logo-basketball.svg' },
+    { label: 'Football', icon: 'sports_football', logo: 'logo-football.svg' },
+    { label: 'Hockey', icon: 'sports_hockey', logo: 'logo-hockey.svg' },
   ];
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);

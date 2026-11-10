@@ -392,6 +392,8 @@ describe('App', () => {
     navItems[2].click();
     fixture.detectChanges();
     await fixture.whenStable();
+    // The toolbar logo shows the selected sport's ball.
+    expect(fixture.nativeElement.querySelector('mat-toolbar img.app-logo').getAttribute('src')).toBe('logo-football.svg');
     const selected = fixture.nativeElement.querySelector('[role="tab"][aria-selected="true"]');
     expect(selected?.textContent?.trim()).toBe('Football');
     expect(navItems[2].getAttribute('aria-current')).toBe('page');

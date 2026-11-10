@@ -85,7 +85,7 @@
       >
         <mat-icon>menu</mat-icon>
       </button>
-      <img class="app-logo" src="logo.svg" alt="" />
+      <img class="app-logo" [src]="sports[selectedSport()].logo" alt="" />
       <span class="app-title">{{ appName }}</span>
       <span class="spacer"></span>
       <div class="brightness-control" [hidden]="!brightnessOpen()">
