@@ -282,7 +282,7 @@ describe('App', () => {
     expect(Array.from<HTMLElement>(basketball.querySelectorAll('.sport-group-title')).map((h) => h.textContent!.trim())).toEqual(['Sold']);
   });
 
-  it('splits each group by grade, highest first, each grade open at first', async () => {
+  it('splits each group by grade, highest first, with the sold cards\' grades closed at first', async () => {
     cards.cards.set([
       { ...card('1', 'Baseball', 'Dave Parker'), grade: 'NM-MT 8' },
       { ...card('2', 'Baseball', 'Derek Jeter'), grade: 'MINT 9' },
@@ -300,9 +300,9 @@ describe('App', () => {
       players: Array.from(group.querySelectorAll('.card-player')).map((player) => player.textContent!.trim()),
     }));
     expect(grades).toEqual([
-      { title: 'PSA MINT 9', count: '1 card', open: 'true', players: ['Derek Jeter'] },
-      { title: 'PSA NM-MT 8', count: '2 cards', open: 'true', players: ['Dave Parker', 'George Brett'] },
-      { title: 'Ungraded', count: '1 card', open: 'true', players: ['Nolan Ryan'] },
+      { title: 'PSA MINT 9', count: '1 card', open: 'false', players: ['Derek Jeter'] },
+      { title: 'PSA NM-MT 8', count: '2 cards', open: 'false', players: ['Dave Parker', 'George Brett'] },
+      { title: 'Ungraded', count: '1 card', open: 'false', players: ['Nolan Ryan'] },
     ]);
     // Each label shows its grade's name over its number, and an ungraded card's shows neither.
     const labelGrades = Array.from<HTMLElement>(sold.querySelectorAll('.card-label-right'))

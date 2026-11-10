@@ -189,7 +189,7 @@
                         </mat-expansion-panel-header>
                         <mat-accordion class="grade-groups" multi>
                           @for (grade of group.grades; track grade.title) {
-                            <mat-expansion-panel class="grade-group" expanded>
+                            <mat-expansion-panel class="grade-group" [expanded]="group.gradesOpen">
                               <mat-expansion-panel-header>
                                 <mat-panel-title class="grade-group-title">{{ grade.title }}</mat-panel-title>
                                 <mat-panel-description>{{ grade.cards.length }} {{ grade.cards.length === 1 ? 'card' : 'cards' }}</mat-panel-description>
