@@ -153,19 +153,23 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      # Hashed assets can be cached for a year; index.html must always be re-checked.
+      # Hashed assets can be cached for a year; index.html must always be re-checked. The files from
+      # public/ (images/ and favicon.ico) keep their names when they change, so they are cached for an
+      # hour and CloudFront's copies are dropped on each deploy.
       - name: Upload to S3 and refresh CloudFront
         run: |
           dist=$(dirname dist/*/browser/index.html)
           account=$(aws sts get-caller-identity --query Account --output text)
           bucket="$APP-ui-$account"
-          aws s3 sync "$dist" "s3://$bucket" --delete --exclude index.html \
+          aws s3 sync "$dist" "s3://$bucket" --delete --exclude index.html --exclude 'images/*' --exclude favicon.ico \
             --cache-control 'public,max-age=31536000,immutable' --only-show-errors
+          aws s3 sync "$dist" "s3://$bucket" --delete --exclude '*' --include 'images/*' --include favicon.ico \
+            --cache-control 'public,max-age=3600' --only-show-errors
           aws s3 cp "$dist/index.html" "s3://$bucket/index.html" --cache-control no-cache \
             --content-type text/html --only-show-errors
           dist_id=$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Aliases.Items && contains(Aliases.Items, '$DOMAIN')].Id | [0]" --output text)
-          id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / \
+          id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / '/images/*' /favicon.ico \
             --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$dist_id" --id "$id"
       # So the sign-in page always has the site's colors: config/managed-login-branding.json filled in
