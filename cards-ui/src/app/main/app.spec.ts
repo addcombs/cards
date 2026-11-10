@@ -741,12 +741,12 @@ describe('App', () => {
     auth.firstName.set('Alex');
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('main h1').textContent).toContain('Welcome to Cards, Alex');
+    expect(fixture.nativeElement.querySelector('main h1').textContent).toContain("Welcome to Combs' Corner, Alex");
   });
 
   it('keeps the generic greeting for users without a first name', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('main h1').textContent.trim()).toBe('Welcome to Cards!');
+    expect(fixture.nativeElement.querySelector('main h1').textContent.trim()).toBe("Welcome to Combs' Corner!");
   });
 });

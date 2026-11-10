@@ -1,5 +1,6 @@
 {
   "name": "cards",
+  "displayName": "Combs' Corner",
   "developerName": "Adam Combs",
   "aws": { "profile": "default", "region": "us-east-2" },
   "domain": { "apex": "acombs-dev.com", "host": "cards.acombs-dev.com", "dnsProvider": "Squarespace" },
