@@ -19,7 +19,7 @@ an eBay listing URL links to it. Members of the Cognito group `admins` also see 
 each card, which opens a dialog to edit its details (`src/app/main/cards/card-edit.ts`); the API
 checks the group too. The photos load from `photosUrl` in `src/app/project.settings.ts`:
 the UI's own host at `/photos/`, which CloudFront serves from the photo bucket.
-The Material 3 palettes are generated from primary indigo `#4B0082` and secondary violet `#8F00FF`
+The Material 3 palettes are generated from primary crimson `#DC143C` and secondary cream `#FFFDD0`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).
 
 ## Local setup

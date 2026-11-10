@@ -31,14 +31,14 @@
   height: 6px;
   border: 1px solid var(--mat-sys-on-surface);
   border-radius: 999px;
-  background: linear-gradient(to right, #121212, #fafafa);
+  background: linear-gradient(to right, #121212, #fefccf);
 }
 
 .brightness-control input::-moz-range-track {
   height: 4px;
   border: 1px solid var(--mat-sys-on-surface);
   border-radius: 999px;
-  background: linear-gradient(to right, #121212, #fafafa);
+  background: linear-gradient(to right, #121212, #fefccf);
 }
 
 .brightness-control input::-webkit-slider-thumb {
