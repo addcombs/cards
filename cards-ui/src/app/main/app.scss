@@ -21,11 +21,6 @@
   padding-block: 24px;
 }
 
-// The buttons on the right sit on the mosaic's solid primary end.
-.app-content > .app-toolbar .spacer ~ button {
-  color: var(--mat-sys-on-primary);
-}
-
 .app-toolbar button {
   color: inherit;
 }
@@ -132,12 +127,12 @@ mat-sidenav mat-nav-list {
   text-decoration: underline;
 }
 
-// The API label and status icon open the API's Swagger docs, on the mosaic's solid primary end.
+// The API label and status icon open the API's Swagger docs.
 .api-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--mat-sys-on-primary);
+  color: inherit;
   text-decoration: none;
 }
 
