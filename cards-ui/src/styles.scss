@@ -7,8 +7,8 @@
 @use 'sass:math';
 
 $brand-palette: generated.$primary-palette;
-// The light end of the brightness range: the cream secondary colour.
-$cream: map.get($brand-palette, secondary, 98);
+// The light end of the brightness range: the lightest tint of the red accent secondary colour.
+$light-end: map.get($brand-palette, secondary, 98);
 
 @function primary-tone($tone) {
   $previous: 0;
@@ -76,7 +76,7 @@ html.dark-theme {
 
 // Neutral surfaces and primary accents respond independently to the same brightness level.
 @for $level from 0 through 100 {
-  $surface: color.mix($cream, #121212, $level * 1%, $method: rgb);
+  $surface: color.mix($light-end, #121212, $level * 1%, $method: rgb);
   $luminance: luminance($surface);
   $primary: primary-tone(80 - .4 * $level);
   html[data-brightness='#{$level}'] {
