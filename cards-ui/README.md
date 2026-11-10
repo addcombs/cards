@@ -5,7 +5,7 @@ adjustable brightness, Cognito sign-in and registration, account profile flows,
 and a sports card dashboard. The signed-in toolbar uses the theme surface color with primary-colored text and icons,
 over a decorative inline SVG pixel mosaic (`src/app/theme/toolbar-background.ts`)
 filled with the theme's primary and secondary colors, so it follows light/dark mode and brightness. The footer
-displays the account API's health, polling `/actuator/health` every 30 seconds.
+displays the account API's health, polling `/actuator/health` every 5 minutes.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
 menu, each showing that sport's cards from `/api/cards` in two expandable panels: those with an eBay
 listing URL under Current eBay Listings, then the rest under Sold, both open at first,
