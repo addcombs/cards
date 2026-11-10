@@ -5,6 +5,6 @@
     <path d="M45.1 18.9A18.5 18.5 0 1 0 45.1 45.1" stroke-width="5"/>
   </g>
   <!-- The hockey puck, seen from a little above. -->
-  <path d="M19.5 29v6.5a12.5 4.5 0 0 0 25 0V29z" fill="#111" stroke="#888" stroke-width="1" stroke-linejoin="round"/>
-  <ellipse cx="32" cy="29" rx="12.5" ry="4.5" fill="#2B2B2B" stroke="#888" stroke-width="1"/>
+  <path d="M19.5 29v6.5a12.5 4.5 0 0 0 25 0V29z" fill="#DC143C" stroke="#DC143C" stroke-width="1.6" stroke-linejoin="round"/>
+  <ellipse cx="32" cy="29" rx="12.5" ry="4.5" fill="#fff" stroke="#DC143C" stroke-width="1.6"/>
 </svg>
