@@ -17,17 +17,8 @@
   border-bottom: 1px solid var(--mat-sys-primary);
 }
 
-// The main toolbar turns from the surface colour behind the title to the primary colour at the right
-// through its pixels (app-toolbar-background), following the brightness slider. The buttons on the
-// right take the colour for text on primary.
 .app-content > .app-toolbar {
   padding-block: 24px;
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-primary);
-}
-
-.app-content > .app-toolbar .spacer ~ button {
-  color: var(--mat-sys-on-primary);
 }
 
 .app-toolbar button {
@@ -118,20 +109,16 @@ mat-sidenav mat-nav-list {
   flex-shrink: 0;
   padding: 0 24px;
   border-top: 1px solid var(--mat-sys-primary);
-  // The same pixels as the toolbar: the credit in primary on the surface colour, the API status in the
-  // colour for text on primary.
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-on-primary);
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-primary);
 }
 
 .app-credit {
   margin-right: auto;
-  color: var(--mat-sys-primary);
 }
 
 .app-credit-name {
-  color: inherit;
-  font-weight: 600;
+  color: var(--mat-sys-secondary);
   text-decoration: none;
 }
 

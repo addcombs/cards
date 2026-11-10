@@ -1,77 +1,72 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 export interface PixelLayer {
+  tone: 'primary' | 'secondary';
   opacity: number;
   d: string;
 }
 
-/** Each pixel's size in CSS pixels; they are drawn edge to edge so the right end is solid crimson. */
-export const CELL = 2;
-/**
- * The fractions of the width where the pixels start, after the white behind the title, and where every
- * pixel is filled. Narrow bars, where the title takes most of the width, keep more white and turn to
- * crimson in a shorter band just before the buttons.
- */
-function band(width: number): { start: number; end: number } {
-  return width < 600 ? { start: 0.56, end: 0.68 } : { start: 0.2, end: 0.92 };
-}
+const CELL = 4;
+const GAP = 1;
+const COLUMNS = 300;
+const ROWS = 30;
+const OPACITIES = [0.1, 0.18, 0.27, 0.36];
 
-/** A stable 0-1 value per cell, so a resize adds or drops cells at the edges without reshuffling the rest. */
-function hash(column: number, row: number, seed: number): number {
-  let t = Math.imul(column, 0x27d4eb2d) ^ Math.imul(row, 0x165667b1) ^ seed;
-  t = Math.imul(t ^ (t >>> 15), 1 | t);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+/** Small deterministic PRNG so the pattern is identical on every render and in tests. */
+function random(seed: number): () => number {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 /**
- * Builds the pixels for a bar `width` by `height` CSS pixels: none on the left, then more and more to
- * the right until they fill it. A few faded pixels run ahead of the solid ones to soften the edge.
- * Neighbouring pixels of a kind in a row are drawn as one strip, which keeps the paths short.
+ * Builds a pixel mosaic that is sparse on the left (behind the title) and denser to the right.
+ * Cells are grouped into one path per tone and opacity to keep the DOM small.
  */
-export function buildPixelLayers(width: number, height: number, seed = 26): PixelLayer[] {
-  const columns = Math.ceil(width / CELL);
-  const rows = Math.ceil(height / CELL);
-  const { start, end } = band(width);
-  const densities = Array.from({ length: columns }, (_, column) => {
-    const x = Math.min(1, Math.max(0, ((column + 0.5) / columns - start) / (end - start)));
-    return x * x * (3 - 2 * x);
-  });
-  const solid: string[] = [];
-  const faded: string[] = [];
-  for (let row = 0; row < rows; row++) {
-    let kind: string[] | null = null;
-    let from = 0;
-    for (let column = 0; column <= columns; column++) {
-      const r = column < columns ? hash(column, row, seed) : 1;
-      const density = densities[column] ?? 0;
-      const next = r < density ? solid : r < density * 1.4 ? faded : null;
-      if (next === kind) continue;
-      if (kind) {
-        const length = (column - from) * CELL;
-        kind.push(`M${from * CELL} ${row * CELL}h${length}v${CELL}h-${length}z`);
-      }
-      kind = next;
-      from = column;
+export function buildPixelLayers(seed = 26): PixelLayer[] {
+  const next = random(seed);
+  const paths = new Map<string, string[]>();
+  for (let column = 0; column < COLUMNS; column++) {
+    const density = Math.pow(column / (COLUMNS - 1), 1.4);
+    for (let row = 0; row < ROWS; row++) {
+      if (next() > density) continue;
+      const tone = Math.sin(column / 21 + row / 7.5) > 0.15 ? 'secondary' : 'primary';
+      const level = Math.min(OPACITIES.length - 1, Math.floor(next() * OPACITIES.length));
+      const key = `${tone}:${level}`;
+      const size = CELL - GAP;
+      const cell = `M${column * CELL} ${row * CELL}h${size}v${size}h-${size}z`;
+      paths.set(key, [...(paths.get(key) ?? []), cell]);
     }
   }
-  return [
-    { opacity: 0.35, d: faded.join('') },
-    { opacity: 1, d: solid.join('') },
-  ].filter((layer) => layer.d);
+  return [...paths.entries()]
+    .map(([key, cells]) => {
+      const [tone, level] = key.split(':');
+      return { tone: tone as PixelLayer['tone'], opacity: OPACITIES[Number(level)], d: cells.join('') };
+    })
+    .sort((a, b) => a.opacity - b.opacity || a.tone.localeCompare(b.tone));
 }
 
+const LAYERS = buildPixelLayers();
+
 /**
- * Decorative toolbar and footer background: the surface colour turning to the primary colour through
- * pixels, from left to right. Both are the theme's, so light/dark mode and the brightness slider
- * recolour it. The pixels are laid out for the bar's actual size, so they stay square at any width.
+ * Decorative toolbar and footer background drawn inline so it follows the live theme: cells are filled
+ * with the Material primary and secondary system colors, so light/dark mode and the brightness
+ * slider recolor it without regenerating an image.
  */
 @Component({
   selector: 'app-toolbar-background',
   template: `
-    <svg [attr.viewBox]="viewBox()" aria-hidden="true" focusable="false">
-      @for (layer of layers(); track layer.opacity) {
-        <path [attr.fill-opacity]="layer.opacity" [attr.d]="layer.d" />
+    <svg
+      viewBox="0 0 1200 120"
+      preserveAspectRatio="xMaxYMid slice"
+      aria-hidden="true"
+      focusable="false"
+    >
+      @for (layer of layers; track $index) {
+        <path [class]="layer.tone" [attr.fill-opacity]="layer.opacity" [attr.d]="layer.d" />
       }
     </svg>
   `,
@@ -82,36 +77,21 @@ export function buildPixelLayers(width: number, height: number, seed = 26): Pixe
       z-index: -1;
       overflow: hidden;
       pointer-events: none;
-      background: var(--mat-sys-surface);
     }
     svg {
       display: block;
       width: 100%;
       height: 100%;
     }
-    path {
+    .primary {
       fill: var(--mat-sys-primary);
+    }
+    .secondary {
+      fill: var(--mat-sys-secondary);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarBackgroundComponent {
-  private readonly size = signal({ width: 1200, height: 120 });
-  protected readonly viewBox = computed(() => `0 0 ${this.size().width} ${this.size().height}`);
-  protected readonly layers = computed(() => buildPixelLayers(this.size().width, this.size().height));
-
-  constructor() {
-    const host: HTMLElement = inject(ElementRef).nativeElement;
-    const destroyRef = inject(DestroyRef);
-    afterNextRender(() => {
-      if (typeof ResizeObserver === 'undefined') return;
-      const observer = new ResizeObserver(([entry]) => {
-        const width = Math.round(entry.contentRect.width);
-        const height = Math.round(entry.contentRect.height);
-        if (width && height) this.size.set({ width, height });
-      });
-      observer.observe(host);
-      destroyRef.onDestroy(() => observer.disconnect());
-    });
-  }
+  protected readonly layers = LAYERS;
 }
