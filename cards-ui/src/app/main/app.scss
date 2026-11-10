@@ -59,6 +59,20 @@ mat-sidenav mat-nav-list {
   flex: 1 1 auto;
 }
 
+// Logo links out to PSA and eBay, sized to sit among the toolbar's icon buttons.
+.site-link {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.site-link img {
+  display: block;
+  height: 24px;
+}
+
 .app-container {
   flex: 1 1 auto;
   min-height: 0;

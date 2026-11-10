@@ -102,6 +102,16 @@ describe('App', () => {
     expect(name.href).toBe('https://acombs-dev.com/');
   });
 
+  it('links the toolbar logos to PSA and eBay in new tabs', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('mat-toolbar a.site-link'));
+    expect(links.map((link) => [link.href, link.target, link.querySelector('img')!.alt])).toEqual([
+      ['https://www.psacard.com/', '_blank', 'PSA (opens in a new tab)'],
+      ['https://www.ebay.com/', '_blank', 'eBay (opens in a new tab)'],
+    ]);
+  });
+
   it('shows the current API health in the footer, not the toolbar', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
