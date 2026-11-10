@@ -8,7 +8,7 @@ filled with the theme's primary and secondary colors, so it follows light/dark m
 displays the account API's health, polling `/actuator/health` every 30 seconds.
 The dashboard has Baseball, Basketball, Football, and Hockey tabs, also reachable from the side
 menu, each showing that sport's cards from `/api/cards` in two expandable panels: those with an eBay
-listing URL under Current eBay Listings (open at first), then the rest under Sold (closed at first),
+listing URL under Current eBay Listings, then the rest under Sold, both open at first,
 each split into a panel per PSA grade, highest first. The cards fly in one after another as a panel
 opens, and sold cards are stamped SOLD.
 A card shows the front of its PSA slab above its player, year, set, variety and card number, each on

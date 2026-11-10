@@ -33,11 +33,10 @@ export interface Sport {
   icon: string;
 }
 
-/** Cards shown together in a sport's tab, in a panel that starts `open` or closed, by grade. */
+/** Cards shown together in a sport's tab, in a panel that starts open, by grade. */
 interface CardGroup {
   title: string;
   count: number;
-  open: boolean;
   grades: GradeGroup[];
 }
 
@@ -100,18 +99,17 @@ export class App {
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);
   /**
-   * Each sport's cards in groups: those listed on eBay, shown open, then the rest, which have sold,
-   * shown closed; within each, by grade, and in the API's order within a grade. Empty groups are
-   * left out.
+   * Each sport's cards in groups, both shown open: those listed on eBay, then the rest, which have
+   * sold; within each, by grade, and in the API's order within a grade. Empty groups are left out.
    */
   protected readonly cardsBySport = computed(() => {
     const bySport = new Map<string, Card[]>(this.sports.map((sport) => [sport.label, []]));
     for (const card of this.cards.cards()) bySport.get(card.sport)?.push(card);
-    const group = (title: string, cards: Card[], open: boolean): CardGroup =>
-      ({ title, count: cards.length, open, grades: byGrade(cards) });
+    const group = (title: string, cards: Card[]): CardGroup =>
+      ({ title, count: cards.length, grades: byGrade(cards) });
     return new Map(Array.from(bySport, ([sport, cards]): [string, CardGroup[]] => [sport, [
-      group('Current eBay Listings', cards.filter((card) => card.ebayUrl), true),
-      group('Sold', cards.filter((card) => !card.ebayUrl), false),
+      group('Current eBay Listings', cards.filter((card) => card.ebayUrl)),
+      group('Sold', cards.filter((card) => !card.ebayUrl)),
     ].filter((g) => g.count)]));
   });
   /** Photo IDs of the cards turned over to show their backs. */

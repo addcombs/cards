@@ -230,7 +230,7 @@ describe('App', () => {
     expect(photo().getAttribute('src')).toBe(`${PROJECT_SETTINGS.photosUrl}97041266/front-zoom.jpg`);
   });
 
-  it('shows the cards listed on eBay first, open, and the sold ones closed, linking to the listings', async () => {
+  it('shows the cards listed on eBay first and the sold ones after, both open, linking to the listings', async () => {
     cards.cards.set([
       card('94481237', 'Baseball', 'Dave Parker'),
       { ...card('97041266', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/123' },
@@ -244,16 +244,13 @@ describe('App', () => {
     const contents = Array.from<HTMLElement>(baseball.querySelectorAll('.sport-group-title, .card-player')).map((el) => el.textContent!.trim());
     expect(contents).toEqual(['Current eBay Listings', 'Derek Jeter', 'Sold', 'Dave Parker', 'George Brett']);
     const headers = Array.from<HTMLElement>(baseball.querySelectorAll('.sport-group > mat-expansion-panel-header'));
-    expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'false']);
+    expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'true']);
     expect(headers[1].textContent).toContain('2 cards');
     // Only the sold cards are stamped.
     const stamped = Array.from<HTMLElement>(baseball.querySelectorAll('figure.sport-card'))
       .filter((figure) => figure.querySelector('.card-sold'))
       .map((figure) => figure.querySelector('.card-player')!.textContent!.trim());
     expect(stamped).toEqual(['Dave Parker', 'George Brett']);
-    headers[1].click();
-    fixture.detectChanges();
-    expect(headers.map((header) => header.getAttribute('aria-expanded'))).toEqual(['true', 'true']);
     const links = Array.from<HTMLAnchorElement>(fixture.nativeElement.querySelectorAll('a.card-ebay'));
     expect(links.map((link) => link.href)).toEqual(['https://www.ebay.com/itm/123']);
     expect(links[0].target).toBe('_blank');

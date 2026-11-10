@@ -173,7 +173,7 @@
                 @if (groups.length) {
                   <mat-accordion class="sport-groups" multi>
                     @for (group of groups; track group.title) {
-                      <mat-expansion-panel class="sport-group" [expanded]="group.open">
+                      <mat-expansion-panel class="sport-group" expanded>
                         <mat-expansion-panel-header>
                           <mat-panel-title class="sport-group-title">{{ group.title }}</mat-panel-title>
                           <mat-panel-description>{{ group.count }} {{ group.count === 1 ? 'card' : 'cards' }}</mat-panel-description>
