@@ -1,6 +1,6 @@
 package com.acombsdev.cards.card;
 
-/** A card; its photos are at photos/{photoId}/front.jpg and back.jpg on the UI's host. */
+/** A card; its photos are at images/photos/{photoId}/front.jpg and back.jpg on the UI's host. */
 public record CardResponse(String photoId, String certNumber, String sport, Integer year, String setName,
                            String cardNumber, String player, String variety, String grade, String ebayUrl) {
     static CardResponse from(Card card) {

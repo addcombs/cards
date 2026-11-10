@@ -1,9 +1,9 @@
 # Uploads the card photos in ..\photos (git-ignored; PSA's image downloads, named like
 # psa-order-24221025-r01-i01-94481237-1992 TOPPS GOLD 141 MICHAEL JORDAN-Front-<id>.jpg) to the photo
 # bucket from create-photos-bucket.ps1:
-#   photos/<photo id>/front.jpg, back.jpg     1000 px tall, served at https://<domain>/photos/
-#   photos/<photo id>/front-zoom.jpg, ...     up to 2400 px tall, for the UI's zoom dialog
-#   originals/<photo id>/front.jpg, back.jpg  as downloaded, not served
+#   images/photos/<photo id>/front.jpg, back.jpg  1000 px tall, served at https://<domain>/images/photos/
+#   images/photos/<photo id>/front-zoom.jpg, ...  up to 2400 px tall, for the UI's zoom dialog
+#   originals/<photo id>/front.jpg, back.jpg      as downloaded, not served
 # The photo ID is the PSA cert number, or order-<order>-r<row> when the name has none; the cards
 # table (<app>-api\db\migrations) refers to the photos by it. Other files are skipped. Safe to re-run:
 # changed photos are replaced. Log: logs\card-photos.log
@@ -63,8 +63,8 @@ $size = (Get-ChildItem (Join-Path $out 'photos') -Recurse -File | Measure-Object
 Step "resized to $height px tall and up to $zoomHeight px for zooming: $([math]::Round($size / 1MB, 1)) MB in all"
 
 # --- upload; a replaced photo shows within a day ---
-Invoke-AwsCli @('s3','sync',(Join-Path $out 'photos'),"s3://$bucket/photos",'--delete','--content-type','image/jpeg','--cache-control','public,max-age=86400','--only-show-errors') | Out-Null
+Invoke-AwsCli @('s3','sync',(Join-Path $out 'photos'),"s3://$bucket/images/photos",'--delete','--content-type','image/jpeg','--cache-control','public,max-age=86400','--only-show-errors') | Out-Null
 Invoke-AwsCli @('s3','sync',(Join-Path $out 'originals'),"s3://$bucket/originals",'--delete','--content-type','image/jpeg','--only-show-errors') | Out-Null
-Step "uploaded to s3://$bucket/photos and /originals"
-Step "DONE. e.g. https://$domain/photos/$(($cards.Keys | Sort-Object)[0])/front.jpg"
+Step "uploaded to s3://$bucket/images/photos and /originals"
+Step "DONE. e.g. https://$domain/images/photos/$(($cards.Keys | Sort-Object)[0])/front.jpg"
 Read-Host 'Press Enter to close'

@@ -31,7 +31,7 @@ import { ToolbarBackgroundComponent } from '../theme/toolbar-background';
 export interface Sport {
   label: string;
   icon: string;
-  /** The toolbar logo while the sport's tab is selected, in public/. */
+  /** The toolbar logo while the sport's tab is selected, in public/images/logos/. */
   logo: string;
 }
 
@@ -95,10 +95,10 @@ export class App {
   protected readonly registrationOpen = signal(false);
   protected readonly brightnessOpen = signal(false);
   protected readonly sports: Sport[] = [
-    { label: 'Baseball', icon: 'sports_baseball', logo: 'logo.svg' },
-    { label: 'Basketball', icon: 'sports_basketball', logo: 'logo-basketball.svg' },
-    { label: 'Football', icon: 'sports_football', logo: 'logo-football.svg' },
-    { label: 'Hockey', icon: 'sports_hockey', logo: 'logo-hockey.svg' },
+    { label: 'Baseball', icon: 'sports_baseball', logo: 'images/logos/logo.svg' },
+    { label: 'Basketball', icon: 'sports_basketball', logo: 'images/logos/logo-basketball.svg' },
+    { label: 'Football', icon: 'sports_football', logo: 'images/logos/logo-football.svg' },
+    { label: 'Hockey', icon: 'sports_hockey', logo: 'images/logos/logo-hockey.svg' },
   ];
   protected readonly selectedSport = signal(0);
   protected readonly cards = inject(CardService);

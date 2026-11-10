@@ -42,7 +42,7 @@ from the new folder:
    repository as the git origin, run `scripts\create-github-deploy-role.ps1`, add the role ARN it
    prints as the repository's Actions variable `AWS_DEPLOY_ROLE_ARN`, then run the workflow (Actions
    > CI > Run workflow) for the first deploy of the UI and the sign-in page's colors
-9. `scripts\create-photos-bucket.ps1` - the card-photo bucket, served at `https://<host>/photos/`
+9. `scripts\create-photos-bucket.ps1` - the card-photo bucket, served at `https://<host>/images/photos/`
 10. `scripts\add-card-admin.ps1 -Email <your sign-in email>` - lets that account edit the cards; sign
     out and back in afterwards
 

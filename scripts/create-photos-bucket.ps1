@@ -1,5 +1,5 @@
 # Creates the private card-photo bucket and serves it from the UI's CloudFront distribution at
-# https://<domain>/photos/ (bucket keys photos/<photo id>/front.jpg and back.jpg, uploaded by
+# https://<domain>/images/photos/ (bucket keys images/photos/<photo id>/front.jpg and back.jpg, uploaded by
 # upload-card-photos.ps1). The photos are kept apart from the UI bucket, which each UI deploy empties of
 # anything not in the build. The distribution reaches the bucket through the UI's origin access
 # control, and the bucket policy lets only that distribution read it. Safe to re-run: the bucket,
@@ -30,13 +30,14 @@ Write-Utf8 $policyFile $policy
 Invoke-AwsCli @('s3api','put-bucket-policy','--bucket',$bucket,'--policy',"file://$policyFile") | Out-Null
 Step "bucket policy set: only $distId can read $bucket"
 
-# --- origin and photos/* behavior on the UI's distribution ---
+# --- origin and images/photos/* behavior on the UI's distribution ---
+$pattern = 'images/photos/*'
 $current = Invoke-AwsCli @('cloudfront','get-distribution-config','--id',$distId,'--output','json') | ConvertFrom-Json
 $cfg = $current.DistributionConfig
 $origins = @($cfg.Origins.Items)
 $behaviors = @(if ($cfg.CacheBehaviors.Quantity -gt 0) { $cfg.CacheBehaviors.Items })
-if (($origins | Where-Object Id -eq $originId) -and ($behaviors | Where-Object PathPattern -eq 'photos/*')) {
-  Step "distribution already serves photos/* from $originId"
+if (($origins | Where-Object Id -eq $originId) -and ($behaviors | Where-Object PathPattern -eq $pattern)) {
+  Step "distribution already serves $pattern from $originId"
 } else {
   # CloudFront wants every field of a new origin and behavior, so copy the UI's and change what differs.
   # The UI origin's access control signs requests to any S3 bucket in the account.
@@ -47,17 +48,18 @@ if (($origins | Where-Object Id -eq $originId) -and ($behaviors | Where-Object P
   $origin.DomainName = "$bucket.s3.$awsRegion.amazonaws.com"
   $origins = @($origins | Where-Object Id -ne $originId) + $origin
   $behavior = $cfg.DefaultCacheBehavior | ConvertTo-Json -Depth 20 | ConvertFrom-Json
-  $behavior | Add-Member -NotePropertyName PathPattern -NotePropertyValue 'photos/*'
+  $behavior | Add-Member -NotePropertyName PathPattern -NotePropertyValue $pattern
   $behavior.TargetOriginId = $originId
   $behavior.CachePolicyId = $cachingOptimized
   # JPEGs are already compressed.
   $behavior.Compress = $false
-  $behaviors = @($behaviors | Where-Object PathPattern -ne 'photos/*') + $behavior
+  # photos/* is where the photos were served before they moved under images/.
+  $behaviors = @($behaviors | Where-Object { $_.PathPattern -notin $pattern, 'photos/*' }) + $behavior
   $cfg.Origins = @{ Quantity = $origins.Count; Items = $origins }
   $cfg.CacheBehaviors = @{ Quantity = $behaviors.Count; Items = $behaviors }
   $configFile = Write-Json (Join-Path $logs 'photos-distribution-config.json') $cfg
   Invoke-AwsCli @('cloudfront','update-distribution','--id',$distId,'--if-match',$current.ETag,'--distribution-config',"file://$configFile",'--query','Distribution.Status','--output','text') | Out-Null
-  Step "distribution updated: photos/* -> $originId (deploying takes about 5 minutes)"
+  Step "distribution updated: $pattern -> $originId (deploying takes about 5 minutes)"
 }
-Step "DONE. Next run scripts\upload-card-photos.ps1; photos are served from https://$domain/photos/"
+Step "DONE. Next run scripts\upload-card-photos.ps1; photos are served from https://$domain/images/photos/"
 Read-Host 'Press Enter to close'

@@ -18,7 +18,7 @@ the buttons, mouse wheel or pinch and pan by dragging, from the larger `-zoom.jp
 an eBay listing URL links to it. Members of the Cognito group `admins` also see a pencil button in the bottom left of
 each card's details, which opens a dialog to edit them (`src/app/main/cards/card-edit.ts`); the API
 checks the group too. The photos load from `photosUrl` in `src/app/project.settings.ts`:
-the UI's own host at `/photos/`, which CloudFront serves from the photo bucket.
+the UI's own host at `/images/photos/`, which CloudFront serves from the photo bucket.
 The Material 3 palettes are generated from primary crimson `#DC143C` and secondary Material red accent A200 `#FF5252`
 (`src/app/theme/generated_theme-colors.scss`, via `ng generate @angular/material:theme-color`).
 
