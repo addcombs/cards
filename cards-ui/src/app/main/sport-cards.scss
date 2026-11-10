@@ -230,12 +230,17 @@
 }
 
 // Admins' edit button, small enough to fit the space left below the player, at the bottom left.
+// A small round button like the zoom button, at the bottom of the label.
 .card-edit {
-  --mat-icon-button-state-layer-size: 28px;
-  --mat-icon-button-icon-size: 18px;
-  margin: auto 0 0 -5px;
-  padding: 5px;
-  color: var(--mat-sys-on-surface-variant);
+  width: 32px;
+  height: 32px;
+  margin-top: auto;
+}
+
+.card-edit mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .card-ebay {

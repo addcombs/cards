@@ -238,7 +238,7 @@
                                           <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
                                           @if (auth.isAdmin()) {
                                             <button
-                                              mat-icon-button
+                                              mat-mini-fab
                                               type="button"
                                               class="card-edit"
                                               [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
