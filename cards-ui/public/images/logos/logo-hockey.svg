@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Combs' Corner">
   <g fill="none" stroke="#DC143C" stroke-linecap="round">
     <!-- The outer and inner C, both opening to the right. -->
-    <path d="M51.8 12.2A28 28 0 1 0 51.8 51.8" stroke-width="7"/>
-    <path d="M44.7 19.3A18 18 0 1 0 44.7 44.7" stroke-width="5.5"/>
+    <path d="M51.1 12.9A27 27 0 1 0 51.1 51.1" stroke-width="7"/>
+    <path d="M45.1 18.9A18.5 18.5 0 1 0 45.1 45.1" stroke-width="5"/>
   </g>
   <!-- The hockey puck, seen from a little above. -->
-  <path d="M21 29.5v5.5a11 4 0 0 0 22 0v-5.5z" fill="#111" stroke="#888" stroke-width="0.8" stroke-linejoin="round"/>
-  <ellipse cx="32" cy="29.5" rx="11" ry="4" fill="#2B2B2B" stroke="#888" stroke-width="0.8"/>
+  <path d="M19.5 29v6.5a12.5 4.5 0 0 0 25 0V29z" fill="#111" stroke="#888" stroke-width="1" stroke-linejoin="round"/>
+  <ellipse cx="32" cy="29" rx="12.5" ry="4.5" fill="#2B2B2B" stroke="#888" stroke-width="1"/>
 </svg>

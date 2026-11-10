@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Combs' Corner">
   <g fill="none" stroke="#DC143C" stroke-linecap="round">
     <!-- The outer and inner C, both opening to the right. -->
-    <path d="M51.8 12.2A28 28 0 1 0 51.8 51.8" stroke-width="7"/>
-    <path d="M44.7 19.3A18 18 0 1 0 44.7 44.7" stroke-width="5.5"/>
+    <path d="M51.1 12.9A27 27 0 1 0 51.1 51.1" stroke-width="7"/>
+    <path d="M45.1 18.9A18.5 18.5 0 1 0 45.1 45.1" stroke-width="5"/>
   </g>
-  <!-- The basketball, with its ribs. -->
-  <circle cx="32" cy="32" r="10" fill="#E8742B" stroke="#3B1F0E" stroke-width="1.2"/>
-  <g fill="none" stroke="#3B1F0E" stroke-width="1.2" stroke-linecap="round">
-    <path d="M32 22V42M22 32H42"/>
-    <path d="M25 24.8Q29.5 32 25 39.2"/>
-    <path d="M39 24.8Q34.5 32 39 39.2"/>
+  <!-- The basketball, with its ribs; drawn thick enough to stay sharp at toolbar size. -->
+  <circle cx="32" cy="32" r="12" fill="#E8742B" stroke="#3B1F0E" stroke-width="1.6"/>
+  <g fill="none" stroke="#3B1F0E" stroke-width="1.7" stroke-linecap="round">
+    <path d="M32 20V44M20 32H44"/>
+    <path d="M24 23.6Q29 32 24 40.4"/>
+    <path d="M40 23.6Q35 32 40 40.4"/>
   </g>
 </svg>
