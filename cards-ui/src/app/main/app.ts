@@ -22,6 +22,7 @@ import { Card, CardService, cardPhotoUrl, psaCertUrl } from './cards/card.servic
 import { CardEditComponent } from './cards/card-edit';
 import { CardZoomComponent, CardZoomData } from './cards/card-zoom';
 import { FullTextTooltipDirective } from './cards/full-text-tooltip';
+import { PanelStateService } from './cards/panel-state.service';
 import { apiUrl } from '../api-url';
 import { APP_DISPLAY_NAME, DEVELOPER_NAME } from './app-name';
 import { AboutDialogComponent } from './about/about-dialog';
@@ -40,7 +41,7 @@ interface CardGroup {
   title: string;
   count: number;
   grades: GradeGroup[];
-  /** Whether its grade panels start open. */
+  /** Whether its grade panels start open, until the viewer opens or closes them. */
   gradesOpen: boolean;
 }
 
@@ -65,7 +66,7 @@ function byGrade(cards: Card[]): GradeGroup[] {
   selector: 'app-root',
   imports: [MatButtonModule, MatExpansionModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
   templateUrl: './app.html',
-  styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss'],
+  styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss', './panels.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
@@ -117,6 +118,8 @@ export class App {
       group('Sold', cards.filter((card) => !card.ebayUrl), false),
     ].filter((g) => g.count)]));
   });
+  /** Which card panels are open, remembered in this browser. */
+  protected readonly panels = inject(PanelStateService);
   /** Photo IDs of the cards turned over to show their backs. */
   protected readonly flipped = signal<ReadonlySet<string>>(new Set());
   protected readonly cardPhotoUrl = cardPhotoUrl;
@@ -197,6 +200,15 @@ export class App {
       if (!next.delete(card.photoId)) next.add(card.photoId);
       return next;
     });
+  }
+
+  /** Opens or closes every panel in a sport's tab: its groups and their grades. */
+  protected setAllPanels(sport: string, open: boolean): void {
+    const keys = (this.cardsBySport().get(sport) ?? []).flatMap((group) => {
+      const groupKey = `${sport}/${group.title}`;
+      return [groupKey, ...group.grades.map((grade) => `${groupKey}/${grade.title}`)];
+    });
+    this.panels.setAll(keys, open);
   }
 
   /** A grade as the PSA label prints it: its name over its number, e.g. "NM-MT" over "8". */

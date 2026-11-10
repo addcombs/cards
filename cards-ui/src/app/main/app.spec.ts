@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MatDialog, MatDialogState } from '@angular/material/dialog';
@@ -9,6 +9,7 @@ import { AuthService } from '../auth/auth.service';
 import { AccountService, AccountDetails } from './account/account.service';
 import { ApiStatusService } from './api-status/api-status.service';
 import { Card, CardService } from './cards/card.service';
+import { PANEL_STATE_STORAGE_KEY } from './cards/panel-state.service';
 import { PROJECT_SETTINGS } from '../project.settings';
 import { BRIGHTNESS_STORAGE_KEY } from '../theme/theme.service';
 
@@ -40,6 +41,12 @@ describe('App', () => {
     photoId, certNumber: photoId, sport, year: 1992, setName: 'Topps Gold', cardNumber: '141', player, variety,
     grade: 'EX-MT 6', ebayUrl: null,
   });
+  /** Opens every card panel in the selected sport's tab, as its Expand all button does. */
+  const expandAll = async (fixture: ComponentFixture<App>) => {
+    for (const button of fixture.nativeElement.querySelectorAll('button[aria-label^="Expand all"]')) (button as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
   const cards = {
     state: signal<'idle' | 'loading' | 'ready' | 'error'>('ready'),
     cards: signal<Card[]>([]),
@@ -162,6 +169,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     const players = (label: string): string[] => Array.from<HTMLElement>(
       fixture.nativeElement.querySelectorAll(`section.sport-panel[aria-label="${label} cards"] .card-player`),
     ).map((player) => player.textContent!.trim());
@@ -182,6 +190,7 @@ describe('App', () => {
     tabs[1].click();
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     expect(players('Basketball')).toEqual(['Michael Jordan', 'Kobe Bryant']);
     const [photo, otherPhoto] = Array.from<HTMLElement>(
       fixture.nativeElement.querySelectorAll('section.sport-panel[aria-label="Basketball cards"] .card-photo'),
@@ -215,6 +224,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     (fixture.nativeElement.querySelector('button.card-flip') as HTMLButtonElement).click();
     fixture.detectChanges();
     const zoom = fixture.nativeElement.querySelector('button.card-zoom') as HTMLButtonElement;
@@ -262,6 +272,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const contents = Array.from<HTMLElement>(baseball.querySelectorAll('.sport-group-title, .card-player')).map((el) => el.textContent!.trim());
     expect(contents).toEqual(['Current eBay Listings', 'Derek Jeter', 'Sold', 'Dave Parker', 'George Brett']);
@@ -298,16 +309,23 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const sold: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"] .sport-group');
-    const grades = Array.from<HTMLElement>(sold.querySelectorAll('.grade-group')).map((group) => ({
+    const grades = () => Array.from<HTMLElement>(sold.querySelectorAll('.grade-group')).map((group) => ({
       title: group.querySelector('.grade-group-title')!.textContent!.trim(),
-      count: group.querySelector('mat-panel-description')!.textContent!.trim(),
+      count: group.querySelector('mat-panel-description .count-pill')!.textContent!.trim(),
       open: group.querySelector('mat-expansion-panel-header')!.getAttribute('aria-expanded'),
       players: Array.from(group.querySelectorAll('.card-player')).map((player) => player.textContent!.trim()),
     }));
-    expect(grades).toEqual([
-      { title: 'PSA MINT 9', count: '1 card', open: 'false', players: ['Derek Jeter'] },
-      { title: 'PSA NM-MT 8', count: '2 cards', open: 'false', players: ['Dave Parker', 'George Brett'] },
-      { title: 'Ungraded', count: '1 card', open: 'false', players: ['Nolan Ryan'] },
+    // A closed grade's cards are only built once it is opened.
+    expect(grades()).toEqual([
+      { title: 'PSA MINT 9', count: '1 card', open: 'false', players: [] },
+      { title: 'PSA NM-MT 8', count: '2 cards', open: 'false', players: [] },
+      { title: 'Ungraded', count: '1 card', open: 'false', players: [] },
+    ]);
+    await expandAll(fixture);
+    expect(grades()).toEqual([
+      { title: 'PSA MINT 9', count: '1 card', open: 'true', players: ['Derek Jeter'] },
+      { title: 'PSA NM-MT 8', count: '2 cards', open: 'true', players: ['Dave Parker', 'George Brett'] },
+      { title: 'Ungraded', count: '1 card', open: 'true', players: ['Nolan Ryan'] },
     ]);
     // Each label shows its grade's name over its number, and an ungraded card's shows neither.
     const labelGrades = Array.from<HTMLElement>(sold.querySelectorAll('.card-label-right'))
@@ -315,11 +333,49 @@ describe('App', () => {
     expect(labelGrades).toEqual([['Mint', '9'], ['Nm-Mt', '8'], ['Nm-Mt', '8'], []]);
   });
 
+  it('expands and collapses every panel in a tab, and remembers them on the next visit', async () => {
+    cards.cards.set([
+      { ...card('1', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/1' },
+      card('2', 'Baseball', 'Dave Parker'),
+    ]);
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const open = (f: ComponentFixture<App>) => Array.from<HTMLElement>(f.nativeElement.querySelectorAll('mat-expansion-panel-header'))
+      .map((header) => header.getAttribute('aria-expanded'));
+    // Each group followed by its grade: the listed cards' grade open, the sold cards' closed.
+    expect(open(fixture)).toEqual(['true', 'true', 'true', 'false']);
+    // Panels left at their defaults are not stored.
+    expect(localStorage.getItem(PANEL_STATE_STORAGE_KEY)).toBeNull();
+
+    const collapse = fixture.nativeElement.querySelector('button[aria-label="Collapse all baseball panels"]') as HTMLButtonElement;
+    expect(collapse.textContent?.trim()).toBe('unfold_less');
+    collapse.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(open(fixture)).toEqual(['false', 'false', 'false', 'false']);
+
+    await expandAll(fixture);
+    expect(open(fixture)).toEqual(['true', 'true', 'true', 'true']);
+    // Closing one by its header is remembered too.
+    (fixture.nativeElement.querySelectorAll('mat-expansion-panel-header')[1] as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(open(fixture)).toEqual(['true', 'false', 'true', 'true']);
+    fixture.destroy();
+
+    const again = TestBed.createComponent(App);
+    again.detectChanges();
+    await again.whenStable();
+    expect(open(again)).toEqual(['true', 'false', 'true', 'true']);
+  });
+
   it('lets only admins edit a card, saving trimmed details and closing on success', async () => {
     cards.cards.set([card('97041266', 'Baseball', 'Derek Jeter', 'Rookie')]);
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     expect(fixture.nativeElement.querySelector('button.card-edit')).toBeNull();
 
     auth.isAdmin.set(true);
@@ -359,6 +415,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
+    await expandAll(fixture);
     (fixture.nativeElement.querySelector('button.card-edit') as HTMLButtonElement).click();
     fixture.detectChanges();
     const dialog = document.querySelector('[role="dialog"]') as HTMLElement;

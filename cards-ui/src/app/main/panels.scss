@@ -1,0 +1,63 @@
+// The card panels' controls and headers. Kept apart from sport-cards.scss so each stays within the component style budget.
+
+// Expand all and Collapse all, above a sport's panels.
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--mat-sys-primary);
+}
+
+.panel-actions button {
+  color: inherit;
+}
+
+// Crimson arrows and a faint crimson tint on hover and focus. The panels clip their closed contents
+// without becoming scroll containers (clip, not Material's hidden), so their headers can stick.
+.sport-group,
+.grade-group {
+  --mat-expansion-header-indicator-color: var(--mat-sys-primary);
+  --mat-expansion-header-hover-state-layer-color: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface));
+  --mat-expansion-header-focus-state-layer-color: color-mix(in srgb, var(--mat-sys-primary) 12%, var(--mat-sys-surface));
+  overflow: clip;
+}
+
+.sport-group {
+  --mat-expansion-header-expanded-state-height: 64px;
+}
+
+.grade-group {
+  --mat-expansion-header-expanded-state-height: 56px;
+}
+
+// While a panel scrolls past, its header sticks under the toolbar, and its open grade's header under
+// that. They are opaque so the cards pass beneath them, and tinted while open.
+.sport-group > mat-expansion-panel-header,
+.grade-group > mat-expansion-panel-header {
+  position: sticky;
+  z-index: 1;
+  background: var(--mat-sys-surface);
+}
+
+.sport-group > mat-expansion-panel-header {
+  top: var(--app-bar-height);
+}
+
+.grade-group > mat-expansion-panel-header {
+  top: calc(var(--app-bar-height) + 64px);
+}
+
+.sport-group > mat-expansion-panel-header.mat-expanded,
+.grade-group > mat-expansion-panel-header.mat-expanded {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface));
+}
+
+// Each header's card count, as a small pill.
+.count-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-label-medium);
+  white-space: nowrap;
+}

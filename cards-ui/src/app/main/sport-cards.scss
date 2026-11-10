@@ -84,8 +84,10 @@
 }
 
 // The PSA slab photos are 3:5 portraits; the back is pre-turned so it reads correctly once flipped.
+// Its own stacking context, so the zoom button stays under the sticky panel headers.
 .card-photo {
   position: relative;
+  isolation: isolate;
 }
 
 // The whole photo is the flip button.

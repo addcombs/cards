@@ -177,104 +177,118 @@
               } @else {
                 @let groups = cardsBySport().get(sport.label)!;
                 @if (groups.length) {
+                  <div class="panel-actions">
+                    <button mat-icon-button type="button" [attr.aria-label]="'Expand all ' + sport.label.toLowerCase() + ' panels'" matTooltip="Expand all" (click)="setAllPanels(sport.label, true)">
+                      <mat-icon>unfold_more</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" [attr.aria-label]="'Collapse all ' + sport.label.toLowerCase() + ' panels'" matTooltip="Collapse all" (click)="setAllPanels(sport.label, false)">
+                      <mat-icon>unfold_less</mat-icon>
+                    </button>
+                  </div>
                   <mat-accordion class="sport-groups" multi displayMode="flat">
                     @for (group of groups; track group.title) {
-                      <mat-expansion-panel class="sport-group" expanded>
+                      @let groupKey = sport.label + '/' + group.title;
+                      <mat-expansion-panel class="sport-group" [expanded]="panels.isOpen(groupKey, true)" (expandedChange)="panels.set(groupKey, $event, true)">
                         <mat-expansion-panel-header>
                           <mat-panel-title class="sport-group-title">{{ group.title }}</mat-panel-title>
-                          <mat-panel-description>{{ group.count }} {{ group.count === 1 ? 'card' : 'cards' }}</mat-panel-description>
+                          <mat-panel-description><span class="count-pill">{{ group.count }} {{ group.count === 1 ? 'card' : 'cards' }}</span></mat-panel-description>
                         </mat-expansion-panel-header>
-                        <mat-accordion class="grade-groups" multi displayMode="flat">
-                          @for (grade of group.grades; track grade.title) {
-                            <mat-expansion-panel class="grade-group" [expanded]="group.gradesOpen">
-                              <mat-expansion-panel-header>
-                                <mat-panel-title class="grade-group-title">{{ grade.title }}</mat-panel-title>
-                                <mat-panel-description>{{ grade.cards.length }} {{ grade.cards.length === 1 ? 'card' : 'cards' }}</mat-panel-description>
-                              </mat-expansion-panel-header>
-                              <div class="card-grid">
-                                @for (card of grade.cards; track card.photoId) {
-                                  <figure class="sport-card" [style.--card-index]="$index">
-                                    <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
-                                      <button
-                                        type="button"
-                                        class="card-flip"
-                                        [attr.aria-pressed]="flipped().has(card.photoId)"
-                                        [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
-                                        (click)="toggleFlip(card)"
-                                      >
-                                        <span class="card-faces">
-                                          <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
-                                            [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
-                                          <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
-                                            [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
-                                        </span>
-                                      </button>
-                                      @if (!card.ebayUrl) {
-                                        <span class="card-sold" aria-hidden="true">Sold</span>
-                                      }
-                                      <button
-                                        mat-mini-fab
-                                        type="button"
-                                        class="card-zoom"
-                                        matTooltip="Zoom"
-                                        [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
-                                        (click)="zoomCard(card)"
-                                      >
-                                        <mat-icon>zoom_in</mat-icon>
-                                      </button>
-                                    </div>
-                                    <figcaption>
-                                      <!-- Laid out like the PSA label on the slab: year and set, any variety, then the player on the left,
-                                           with admins' edit button in the space below; card number, grade and cert number down the right. -->
-                                      <span class="card-label">
-                                        <span class="card-label-left">
-                                          <span class="card-set card-line" [appFullTextTooltip]="card.year + ' ' + card.setName">{{ card.year }} {{ card.setName }}</span>
-                                          @if (card.variety) {
-                                            <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
+                        <ng-template matExpansionPanelContent>
+                          <mat-accordion class="grade-groups" multi displayMode="flat">
+                            @for (grade of group.grades; track grade.title) {
+                              @let gradeKey = groupKey + '/' + grade.title;
+                              <mat-expansion-panel class="grade-group" [expanded]="panels.isOpen(gradeKey, group.gradesOpen)" (expandedChange)="panels.set(gradeKey, $event, group.gradesOpen)">
+                                <mat-expansion-panel-header>
+                                  <mat-panel-title class="grade-group-title">{{ grade.title }}</mat-panel-title>
+                                  <mat-panel-description><span class="count-pill">{{ grade.cards.length }} {{ grade.cards.length === 1 ? 'card' : 'cards' }}</span></mat-panel-description>
+                                </mat-expansion-panel-header>
+                                <ng-template matExpansionPanelContent>
+                                  <div class="card-grid">
+                                    @for (card of grade.cards; track card.photoId) {
+                                      <figure class="sport-card" [style.--card-index]="$index">
+                                        <div class="card-photo" [class.flipped]="flipped().has(card.photoId)">
+                                          <button
+                                            type="button"
+                                            class="card-flip"
+                                            [attr.aria-pressed]="flipped().has(card.photoId)"
+                                            [attr.aria-label]="'Flip ' + card.player + ', ' + cardTitle(card) + ' to the ' + (flipped().has(card.photoId) ? 'front' : 'back')"
+                                            (click)="toggleFlip(card)"
+                                          >
+                                            <span class="card-faces">
+                                              <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                                                [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
+                                              <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                                                [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
+                                            </span>
+                                          </button>
+                                          @if (!card.ebayUrl) {
+                                            <span class="card-sold" aria-hidden="true">Sold</span>
                                           }
-                                          <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
-                                          @if (auth.isAdmin()) {
-                                            <button
-                                              mat-icon-button
-                                              type="button"
-                                              class="card-edit"
-                                              [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
-                                              matTooltip="Edit card"
-                                              (click)="editCard(card)"
-                                            >
-                                              <mat-icon>edit</mat-icon>
-                                            </button>
-                                          }
-                                        </span>
-                                        <span class="card-label-right">
-                                          <span class="card-number">#{{ card.cardNumber }}</span>
-                                          @if (card.grade) {
-                                            @let grade = gradeParts(card.grade);
-                                            <span class="card-grade-name">{{ grade.name }}</span>
-                                            @if (grade.number) {
-                                              <span class="card-grade-number">{{ grade.number }}</span>
-                                            }
-                                          }
-                                          @if (card.certNumber) {
-                                            <a class="card-cert" [href]="psaCertUrl(card.certNumber)" target="_blank" rel="noopener" matTooltip="View on PSA">
-                                              <span class="cdk-visually-hidden">PSA cert </span>{{ card.certNumber }}<span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                                          <button
+                                            mat-mini-fab
+                                            type="button"
+                                            class="card-zoom"
+                                            matTooltip="Zoom"
+                                            [attr.aria-label]="'Zoom ' + card.player + ', ' + cardTitle(card)"
+                                            (click)="zoomCard(card)"
+                                          >
+                                            <mat-icon>zoom_in</mat-icon>
+                                          </button>
+                                        </div>
+                                        <figcaption>
+                                          <!-- Laid out like the PSA label on the slab: year and set, any variety, then the player on the left,
+                                               with admins' edit button in the space below; card number, grade and cert number down the right. -->
+                                          <span class="card-label">
+                                            <span class="card-label-left">
+                                              <span class="card-set card-line" [appFullTextTooltip]="card.year + ' ' + card.setName">{{ card.year }} {{ card.setName }}</span>
+                                              @if (card.variety) {
+                                                <span class="card-variety card-line" [appFullTextTooltip]="card.variety">{{ card.variety }}</span>
+                                              }
+                                              <span class="card-player card-line" [appFullTextTooltip]="card.player">{{ card.player }}</span>
+                                              @if (auth.isAdmin()) {
+                                                <button
+                                                  mat-icon-button
+                                                  type="button"
+                                                  class="card-edit"
+                                                  [attr.aria-label]="'Edit ' + card.player + ', ' + cardTitle(card)"
+                                                  matTooltip="Edit card"
+                                                  (click)="editCard(card)"
+                                                >
+                                                  <mat-icon>edit</mat-icon>
+                                                </button>
+                                              }
+                                            </span>
+                                            <span class="card-label-right">
+                                              <span class="card-number">#{{ card.cardNumber }}</span>
+                                              @if (card.grade) {
+                                                @let grade = gradeParts(card.grade);
+                                                <span class="card-grade-name">{{ grade.name }}</span>
+                                                @if (grade.number) {
+                                                  <span class="card-grade-number">{{ grade.number }}</span>
+                                                }
+                                              }
+                                              @if (card.certNumber) {
+                                                <a class="card-cert" [href]="psaCertUrl(card.certNumber)" target="_blank" rel="noopener" matTooltip="View on PSA">
+                                                  <span class="cdk-visually-hidden">PSA cert </span>{{ card.certNumber }}<span class="cdk-visually-hidden"> (opens in a new tab)</span>
+                                                </a>
+                                              }
+                                            </span>
+                                          </span>
+                                          @if (card.ebayUrl) {
+                                            <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
+                                              eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
+                                              <span class="cdk-visually-hidden"> (opens in a new tab)</span>
                                             </a>
                                           }
-                                        </span>
-                                      </span>
-                                      @if (card.ebayUrl) {
-                                        <a class="card-ebay" [href]="card.ebayUrl" target="_blank" rel="noopener">
-                                          eBay listing<mat-icon inline aria-hidden="true">open_in_new</mat-icon>
-                                          <span class="cdk-visually-hidden"> (opens in a new tab)</span>
-                                        </a>
-                                      }
-                                    </figcaption>
-                                  </figure>
-                                }
-                              </div>
-                            </mat-expansion-panel>
-                          }
-                        </mat-accordion>
+                                        </figcaption>
+                                      </figure>
+                                    }
+                                  </div>
+                                </ng-template>
+                              </mat-expansion-panel>
+                            }
+                          </mat-accordion>
+                        </ng-template>
                       </mat-expansion-panel>
                     }
                   </mat-accordion>
