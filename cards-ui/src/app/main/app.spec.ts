@@ -154,7 +154,7 @@ describe('App', () => {
     const baseball: HTMLElement = fixture.nativeElement.querySelector('section.sport-panel[aria-label="Baseball cards"]');
     const lines = (side: string) => Array.from<HTMLElement>(baseball.querySelectorAll(`.card-label-${side} > span`)).map((line) => line.textContent!.trim());
     expect(lines('left')).toEqual(['1992 Topps Gold', 'Rookie', 'Derek Jeter']);
-    expect(lines('right')).toEqual(['#141', 'EX-MT', '6']);
+    expect(lines('right')).toEqual(['#141', 'Ex-Mt', '6']);
     // The cert number links to PSA's page for it.
     const cert: HTMLAnchorElement = baseball.querySelector('.card-label-right > a.card-cert')!;
     expect(cert.textContent!.replace(/\s+/g, ' ').trim()).toBe('PSA cert 97041266 (opens in a new tab)');
@@ -297,7 +297,7 @@ describe('App', () => {
     // Each label shows its grade's name over its number, and an ungraded card's shows neither.
     const labelGrades = Array.from<HTMLElement>(sold.querySelectorAll('.card-label-right'))
       .map((label) => Array.from(label.querySelectorAll('.card-grade-name, .card-grade-number')).map((el) => el.textContent!.trim()));
-    expect(labelGrades).toEqual([['MINT', '9'], ['NM-MT', '8'], ['NM-MT', '8'], []]);
+    expect(labelGrades).toEqual([['Mint', '9'], ['Nm-Mt', '8'], ['Nm-Mt', '8'], []]);
   });
 
   it('lets only admins edit a card, saving trimmed details and closing on success', async () => {

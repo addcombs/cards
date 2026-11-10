@@ -197,7 +197,9 @@ export class App {
   /** A grade as the PSA label prints it: its name over its number, e.g. "NM-MT" over "8". */
   protected gradeParts(grade: string): { name: string; number: string | null } {
     const match = /^(.*?)\s*(\d+(?:\.\d+)?)$/.exec(grade);
-    return match ? { name: match[1], number: match[2] } : { name: grade, number: null };
+    // Grades are stored in PSA's capitals; the label shows them in proper case, so "NM-MT" reads "Nm-Mt".
+    const name = (match ? match[1] : grade).toLocaleLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep, letter) => sep + letter.toLocaleUpperCase());
+    return { name, number: match ? match[2] : null };
   }
 
   protected cardTitle(card: Card): string {
