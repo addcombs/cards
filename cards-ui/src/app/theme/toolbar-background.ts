@@ -6,7 +6,7 @@ export interface PixelLayer {
 }
 
 /** Each pixel's size in CSS pixels; they are drawn edge to edge so the right end is solid crimson. */
-export const CELL = 6;
+export const CELL = 4;
 /**
  * The fractions of the width where the pixels start, after the white behind the title, and where every
  * pixel is filled. Narrow bars, where the title takes most of the width, keep more white and turn to

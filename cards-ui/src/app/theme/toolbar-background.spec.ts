@@ -17,9 +17,10 @@ describe('ToolbarBackgroundComponent', () => {
       .map((cell) => Number(cell.slice(1)) / CELL);
     const solid = columnsOf(1);
     // Nothing behind the title, and every pixel filled in the last columns.
-    expect(Math.min(...solid, ...columnsOf(0.35))).toBeGreaterThanOrEqual(0.2 * 200 - 1);
+    const columns = 1200 / CELL;
+    expect(Math.min(...solid, ...columnsOf(0.35))).toBeGreaterThanOrEqual(0.2 * columns - 1);
     const rows = 120 / CELL;
-    for (const column of [195, 196, 197, 198, 199]) {
+    for (const column of [1, 2, 3, 4, 5].map((n) => columns - n)) {
       expect(solid.filter((c) => c === column).length).toBe(rows);
     }
   });
