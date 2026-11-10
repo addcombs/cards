@@ -62,8 +62,9 @@ export function buildPixelLayers(width: number, height: number, seed = 26): Pixe
 }
 
 /**
- * Decorative toolbar and footer background: white turning to crimson through pixels, from left to
- * right. The pixels are laid out for the bar's actual size, so they stay square at any width.
+ * Decorative toolbar and footer background: the surface colour turning to the primary colour through
+ * pixels, from left to right. Both are the theme's, so light/dark mode and the brightness slider
+ * recolour it. The pixels are laid out for the bar's actual size, so they stay square at any width.
  */
 @Component({
   selector: 'app-toolbar-background',
@@ -81,7 +82,7 @@ export function buildPixelLayers(width: number, height: number, seed = 26): Pixe
       z-index: -1;
       overflow: hidden;
       pointer-events: none;
-      background: #fff;
+      background: var(--mat-sys-surface);
     }
     svg {
       display: block;
@@ -89,7 +90,7 @@ export function buildPixelLayers(width: number, height: number, seed = 26): Pixe
       height: 100%;
     }
     path {
-      fill: #dc143c;
+      fill: var(--mat-sys-primary);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
