@@ -50,6 +50,13 @@ mat-sidenav mat-nav-list {
   font: inherit;
 }
 
+// The logo: a C inside a C around a baseball. Decorative, as the name beside it says the same.
+.app-logo {
+  display: block;
+  height: 36px;
+  margin-left: 4px;
+}
+
 .app-title {
   margin-left: 8px;
   font-size: 1.25rem;
