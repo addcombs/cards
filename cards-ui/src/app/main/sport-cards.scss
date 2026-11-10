@@ -19,7 +19,12 @@
   --panel-border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+}
+
+// The panels touch, flat (no spacing around an open one), sharing the line between them.
+.sport-group + .sport-group,
+.grade-group + .grade-group {
+  margin-top: -1px;
 }
 
 .sport-group {
@@ -44,7 +49,6 @@
 .grade-groups {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .grade-group {
