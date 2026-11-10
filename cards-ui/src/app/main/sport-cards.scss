@@ -188,14 +188,11 @@
   gap: 4px;
 }
 
-// A copy of the slab's PSA label: its type inside a red frame, on the page's own background.
+// Set out like the slab's PSA label, without its frame, on the page's own background.
 .card-label {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
-  padding: 6px 8px;
-  border: 5px solid #e3262f;
-  border-radius: 4px;
   font: 400 0.8125rem / 1.25 Arial, Helvetica, sans-serif;
   text-transform: uppercase;
 }
