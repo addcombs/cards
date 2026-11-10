@@ -17,9 +17,9 @@
   border-bottom: 1px solid var(--mat-sys-primary);
 }
 
-// The main toolbar fades from solid white behind the title to solid crimson at the right, in light
-// and dark mode alike, so its colours are fixed rather than the theme's. The buttons on the right are
-// white against the crimson.
+// The main toolbar fades from solid white behind the title to solid crimson at the right, under its
+// pixel mosaic, in light and dark mode alike, so its colours are fixed rather than the theme's. The
+// buttons on the right are white against the crimson.
 .app-content > .app-toolbar {
   padding-block: 24px;
   background: linear-gradient(to right, #fff, #DC143C);
