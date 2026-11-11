@@ -2,7 +2,7 @@ import { APP_DISPLAY_NAME, formatDisplayName } from './app-name';
 
 describe('formatDisplayName', () => {
   it('uses the configured display name', () => {
-    expect(APP_DISPLAY_NAME).toBe("Combs' Corner");
+    expect(APP_DISPLAY_NAME).toBe("Combs' Corner Cards");
   });
 
   it('replaces special characters with spaces and capitalizes each word', () => {

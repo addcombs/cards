@@ -2,7 +2,7 @@
 // which start-all runs before building. Edit those files, not this one.
 export const PROJECT_SETTINGS = {
   appName: 'cards',
-  displayName: 'Combs\' Corner',
+  displayName: 'Combs\' Corner Cards',
   developerName: 'Adam Combs',
   apiUrl: 'https://api.cards.acombs-dev.com',
   photosUrl: 'https://cards.acombs-dev.com/images/photos/',
