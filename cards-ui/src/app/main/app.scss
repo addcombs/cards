@@ -147,9 +147,28 @@ mat-sidenav mat-nav-list {
 
 // The logo above the sign-in welcome. Decorative, as the heading names the app.
 .auth-logo {
+  position: relative;
   display: block;
   width: 96px;
   height: 96px;
+}
+
+// The sports' logos, stacked; one shows at a time, fading into the next.
+.auth-logo img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 800ms ease-in-out;
+}
+
+.auth-logo img.shown {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-logo img {
+    transition: none;
+  }
 }
 
 .auth-screen {

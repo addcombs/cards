@@ -11,7 +11,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { map } from 'rxjs';
+import { map, timer } from 'rxjs';
 import { ThemeService } from '../theme/theme.service';
 import { AuthService } from '../auth/auth.service';
 import { RegistrationComponent } from '../auth/registration';
@@ -102,6 +102,8 @@ export class App {
     { label: 'Hockey', icon: 'sports_hockey', logo: 'images/logos/logo-hockey.svg' },
   ];
   protected readonly selectedSport = signal(0);
+  /** The sport whose logo the sign-in screen shows, moving to the next every 5 seconds. */
+  protected readonly signInSport = toSignal(timer(5000, 5000).pipe(map((tick) => (tick + 1) % this.sports.length)), { initialValue: 0 });
   protected readonly cards = inject(CardService);
   /**
    * Each sport's cards in groups, both shown open: those listed on eBay, then the rest, which have

@@ -548,6 +548,30 @@ describe('App', () => {
     expect(auth.signIn).toHaveBeenCalledOnce();
   });
 
+  it('moves the sign-in logo to the next sport every 5 seconds', () => {
+    vi.useFakeTimers();
+    try {
+      auth.status.set('signedOut');
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+      const shown = () => Array.from<HTMLImageElement>(fixture.nativeElement.querySelectorAll('.auth-logo img.shown'))
+        .map((logo) => logo.getAttribute('src'));
+      expect(shown()).toEqual(['images/logos/logo.svg']);
+      vi.advanceTimersByTime(4999);
+      fixture.detectChanges();
+      expect(shown()).toEqual(['images/logos/logo.svg']);
+      vi.advanceTimersByTime(1);
+      fixture.detectChanges();
+      expect(shown()).toEqual(['images/logos/logo-basketball.svg']);
+      // After hockey it starts again with baseball.
+      vi.advanceTimersByTime(15000);
+      fixture.detectChanges();
+      expect(shown()).toEqual(['images/logos/logo.svg']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('explains that authentication must be configured before sign-in', () => {
     auth.status.set('notConfigured');
     const fixture = TestBed.createComponent(App);
