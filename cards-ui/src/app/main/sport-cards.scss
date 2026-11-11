@@ -37,10 +37,12 @@
   }
 }
 
-// Within each, a panel per grade: open at first for the listed cards, closed for the sold.
+// Within each, a panel per grade: open at first for the listed cards, closed for the sold. Set a little
+// below the group's header.
 .grade-groups {
   display: flex;
   flex-direction: column;
+  margin-top: 12px;
 }
 
 .grade-group {
