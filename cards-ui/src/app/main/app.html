@@ -31,7 +31,7 @@
       <button mat-flat-button type="button" [disabled]="auth.busy()" (click)="auth.signOut()">Clear session</button>
     } @else {
       <button mat-flat-button type="button" [disabled]="auth.busy()" (click)="auth.signIn()">Sign in</button>
-      <button mat-button type="button" [disabled]="auth.busy()" (click)="registrationOpen.set(true)">Create account</button>
+      <button matButton="tonal" type="button" [disabled]="auth.busy()" (click)="registrationOpen.set(true)">Create account</button>
     }
     }
   </main>
