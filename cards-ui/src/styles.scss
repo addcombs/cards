@@ -129,9 +129,11 @@ textarea,
 }
 
 // The sport tabs clip their content without becoming scroll containers (clip, not Material's hidden
-// and auto), so the card panels' headers can stick under the toolbar as the page scrolls.
+// and auto), so the card panels' headers can stick under the toolbar as the page scrolls. Important,
+// as Material's dynamic-height rules for the active tab are more specific and load after these;
+// otherwise the active tab scrolls and the headers stick 120px down it, over the panels beneath them.
 .sport-tabs .mat-mdc-tab-body-wrapper,
 .sport-tabs .mat-mdc-tab-body,
 .sport-tabs .mat-mdc-tab-body-content {
-  overflow: clip;
+  overflow: clip !important;
 }
