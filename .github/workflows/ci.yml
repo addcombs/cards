@@ -137,7 +137,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v5
-      # new-app.ps1 leaves the Cognito IDs empty until create-cognito-pool.ps1 fills them in.
+      # The Cognito IDs stay empty until create-cognito-pool.ps1 fills them in.
       - name: Check the UI settings have the Cognito IDs
         run: |
           grep -qE "userPoolId: '[^']+'" cards-ui/src/app/project.settings.ts \

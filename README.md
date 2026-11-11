@@ -1,6 +1,6 @@
 # cards
 
-A full-stack app template: an Angular UI (`cards-ui`) and a Spring Boot API on AWS Lambda
+A full-stack app: an Angular UI (`cards-ui`) and a Spring Boot API on AWS Lambda
 (`cards-api`), with Cognito sign-in, a Neon PostgreSQL schema of its own, and CloudFront at
 https://cards.acombs-dev.com and https://api.cards.acombs-dev.com. See each folder's
 README for details.
@@ -18,16 +18,10 @@ without pushing, run the workflow from the repository's Actions tab (CI > Run wo
 deploy never changes the function's settings, so no secrets are stored in GitHub; after changing
 `.env` or the Cognito pool, run `scripts\deploy-api.ps1` again.
 
-## Create a new app
+## Set up
 
-```powershell
-.\scripts\new-app.ps1 -Name project-1 -Primary '#RRGGBB' -Secondary '#RRGGBB'
-```
-
-copies this project to `..\project-1` with the folders, Java package, names, host
-(`project-1.acombs-dev.com` unless `-HostName` is given), Cognito prefix, schema and colors
-renamed, writes its `.env` with the shared database login, and starts a git repository. Then run,
-from the new folder:
+The app was created from `template-0` with its `scripts\new-app.ps1`; make further apps from that
+template, not from this one. To set this one up in AWS from scratch, run:
 
 1. `scripts\create-cognito-pool.ps1` - the app's user pool, client and sign-in domain
 2. `scripts\apply-migrations.ps1` - its schema and tables in the shared database

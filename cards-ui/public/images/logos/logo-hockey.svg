@@ -4,7 +4,8 @@
     <path d="M51.1 12.9A27 27 0 1 0 51.1 51.1" stroke-width="7"/>
     <path d="M45.1 18.9A18.5 18.5 0 1 0 45.1 45.1" stroke-width="5"/>
   </g>
-  <!-- The hockey puck, seen from a little above. -->
-  <path d="M19.5 29v6.5a12.5 4.5 0 0 0 25 0V29z" fill="#DC143C" stroke="#DC143C" stroke-width="1.6" stroke-linejoin="round"/>
-  <ellipse cx="32" cy="29" rx="12.5" ry="4.5" fill="#fff" stroke="#DC143C" stroke-width="1.6"/>
+  <!-- The hockey sticks and puck: the side menu's Material icon sports_hockey (Apache License 2.0), its 24 px box scaled to sit inside the inner C. -->
+  <g fill="#DC143C" transform="translate(18.8 18.8) scale(1.1)">
+    <path d="M2 17v3h2v-4H3c-.55 0-1 .45-1 1zm7-1H5v4l4.69-.01c.38 0 .72-.21.89-.55l.87-1.9-1.59-3.48L9 16zm12.71.29A.997.997 0 0 0 21 16h-1v4h2v-3c0-.28-.11-.53-.29-.71zm-8.11-3.45L17.65 4H14.3l-1.76 3.97-.49 1.1-.05.14L9.7 4H6.35l4.05 8.84 1.52 3.32.08.18 1.42 3.1c.17.34.51.55.89.55L19 20v-4h-4l-1.4-3.16z"/>
+  </g>
 </svg>
