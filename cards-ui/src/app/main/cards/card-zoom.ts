@@ -11,8 +11,8 @@ export interface CardZoomData {
   side: CardSide;
 }
 
-export const MIN_ZOOM = 1;
-export const MAX_ZOOM = 4;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 4;
 const STEP = 1.5;
 
 /**

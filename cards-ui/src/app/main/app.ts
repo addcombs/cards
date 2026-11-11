@@ -29,7 +29,7 @@ import { AboutDialogComponent } from './about/about-dialog';
 import { ToolbarBackgroundComponent } from '../theme/toolbar-background';
 
 /** A dashboard tab and side-menu entry, with its Material `icon`. */
-export interface Sport {
+interface Sport {
   label: string;
   icon: string;
   /** The toolbar logo while the sport's tab is selected, in public/images/logos/. */
