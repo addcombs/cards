@@ -17,6 +17,7 @@
         <p>Loading registration...</p>
       }
     } @else {
+    <img class="auth-logo" src="images/logos/logo.svg" alt="" width="96" height="96" />
     <h1 class="welcome-title">Welcome to {{ appName }}</h1>
     <p>Sign in or create an account to continue.</p>
     @if (auth.error()) {

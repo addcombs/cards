@@ -145,6 +145,13 @@ mat-sidenav mat-nav-list {
   font-weight: 400;
 }
 
+// The logo above the sign-in welcome. Decorative, as the heading names the app.
+.auth-logo {
+  display: block;
+  width: 96px;
+  height: 96px;
+}
+
 .auth-screen {
   display: flex;
   flex: 1;
