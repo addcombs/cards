@@ -19,13 +19,8 @@ export class PanelStateService {
 
   /** Records a panel opening or closing; one still at its default, never touched, is left out. */
   set(key: string, open: boolean, fallback: boolean): void {
-    if (this.state()[key] === undefined && open === fallback) return;
-    this.setAll([key], open);
-  }
-
-  setAll(keys: readonly string[], open: boolean): void {
-    if (keys.every((key) => this.state()[key] === open)) return;
-    this.state.update((state) => ({ ...state, ...Object.fromEntries(keys.map((key) => [key, open])) }));
+    if (this.isOpen(key, fallback) === open) return;
+    this.state.update((state) => ({ ...state, [key]: open }));
     try {
       this.document.defaultView?.localStorage.setItem(PANEL_STATE_STORAGE_KEY, JSON.stringify(this.state()));
     } catch (error) {

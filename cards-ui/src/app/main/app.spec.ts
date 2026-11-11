@@ -41,11 +41,14 @@ describe('App', () => {
     photoId, certNumber: photoId, sport, year: 1992, setName: 'Topps Gold', cardNumber: '141', player, variety,
     grade: 'EX-MT 6', ebayUrl: null,
   });
-  /** Opens every card panel in the selected sport's tab, as its Expand all button does. */
+  /** Opens every card panel in the selected sport's tab by its header, groups first and then the grades they reveal. */
   const expandAll = async (fixture: ComponentFixture<App>) => {
-    for (const button of fixture.nativeElement.querySelectorAll('button[aria-label^="Expand all"]')) (button as HTMLButtonElement).click();
-    fixture.detectChanges();
-    await fixture.whenStable();
+    let closed: HTMLElement[];
+    while ((closed = Array.from(fixture.nativeElement.querySelectorAll('mat-expansion-panel-header[aria-expanded="false"]'))).length) {
+      for (const header of closed) header.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
   };
   const cards = {
     state: signal<'idle' | 'loading' | 'ready' | 'error'>('ready'),
@@ -333,7 +336,7 @@ describe('App', () => {
     expect(labelGrades).toEqual([['Mint', '9'], ['Nm-Mt', '8'], ['Nm-Mt', '8'], []]);
   });
 
-  it('expands and collapses every panel in a tab, and remembers them on the next visit', async () => {
+  it('remembers which panels were opened and closed on the next visit', async () => {
     cards.cards.set([
       { ...card('1', 'Baseball', 'Derek Jeter'), ebayUrl: 'https://www.ebay.com/itm/1' },
       card('2', 'Baseball', 'Dave Parker'),
@@ -348,16 +351,8 @@ describe('App', () => {
     // Panels left at their defaults are not stored.
     expect(localStorage.getItem(PANEL_STATE_STORAGE_KEY)).toBeNull();
 
-    const collapse = fixture.nativeElement.querySelector('button[aria-label="Collapse all baseball panels"]') as HTMLButtonElement;
-    expect(collapse.textContent?.trim()).toBe('unfold_less');
-    collapse.click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    expect(open(fixture)).toEqual(['false', 'false', 'false', 'false']);
-
     await expandAll(fixture);
     expect(open(fixture)).toEqual(['true', 'true', 'true', 'true']);
-    // Closing one by its header is remembered too.
     (fixture.nativeElement.querySelectorAll('mat-expansion-panel-header')[1] as HTMLElement).click();
     fixture.detectChanges();
     await fixture.whenStable();

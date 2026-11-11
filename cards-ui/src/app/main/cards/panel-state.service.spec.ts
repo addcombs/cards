@@ -16,7 +16,8 @@ describe('PanelStateService', () => {
     expect(localStorage.getItem(PANEL_STATE_STORAGE_KEY)).toBeNull();
 
     panels.set('Baseball/Sold', false, true);
-    panels.setAll(['Baseball/Sold/PSA MINT 9', 'Baseball/Sold/Ungraded'], true);
+    panels.set('Baseball/Sold/PSA MINT 9', true, false);
+    panels.set('Baseball/Sold/Ungraded', true, false);
     expect(panels.isOpen('Baseball/Sold', true)).toBe(false);
     expect(JSON.parse(localStorage.getItem(PANEL_STATE_STORAGE_KEY)!)).toEqual({
       'Baseball/Sold': false,

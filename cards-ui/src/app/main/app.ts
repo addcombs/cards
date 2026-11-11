@@ -202,15 +202,6 @@ export class App {
     });
   }
 
-  /** Opens or closes every panel in a sport's tab: its groups and their grades. */
-  protected setAllPanels(sport: string, open: boolean): void {
-    const keys = (this.cardsBySport().get(sport) ?? []).flatMap((group) => {
-      const groupKey = `${sport}/${group.title}`;
-      return [groupKey, ...group.grades.map((grade) => `${groupKey}/${grade.title}`)];
-    });
-    this.panels.setAll(keys, open);
-  }
-
   /** A grade as the PSA label prints it: its name over its number, e.g. "NM-MT" over "8". */
   protected gradeParts(grade: string): { name: string; number: string | null } {
     const match = /^(.*?)\s*(\d+(?:\.\d+)?)$/.exec(grade);

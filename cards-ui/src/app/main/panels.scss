@@ -1,17 +1,5 @@
 // The card panels' controls and headers. Kept apart from sport-cards.scss so each stays within the component style budget.
 
-// Expand all and Collapse all, above a sport's panels.
-.panel-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 4px;
-  color: var(--mat-sys-primary);
-}
-
-.panel-actions button {
-  color: inherit;
-}
-
 // Crimson arrows and a faint crimson tint on hover and focus. The panels clip their closed contents
 // without becoming scroll containers (clip, not Material's hidden), so their headers can stick.
 .sport-group,

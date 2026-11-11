@@ -177,14 +177,6 @@
               } @else {
                 @let groups = cardsBySport().get(sport.label)!;
                 @if (groups.length) {
-                  <div class="panel-actions">
-                    <button mat-icon-button type="button" [attr.aria-label]="'Expand all ' + sport.label.toLowerCase() + ' panels'" matTooltip="Expand all" (click)="setAllPanels(sport.label, true)">
-                      <mat-icon>unfold_more</mat-icon>
-                    </button>
-                    <button mat-icon-button type="button" [attr.aria-label]="'Collapse all ' + sport.label.toLowerCase() + ' panels'" matTooltip="Collapse all" (click)="setAllPanels(sport.label, false)">
-                      <mat-icon>unfold_less</mat-icon>
-                    </button>
-                  </div>
                   <mat-accordion class="sport-groups" multi displayMode="flat">
                     @for (group of groups; track group.title) {
                       @let groupKey = sport.label + '/' + group.title;
