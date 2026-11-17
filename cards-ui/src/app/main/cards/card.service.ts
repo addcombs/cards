@@ -2,7 +2,6 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable, inject, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { firstValueFrom } from 'rxjs';
-import { apiUrl } from '../../api-url';
 import { PROJECT_SETTINGS } from '../../project.settings';
 
 export interface Card {
@@ -55,7 +54,7 @@ export class CardService {
     try {
       const headers = await this.authHeaders();
       if (generation !== this.generation) return;
-      const cards = await firstValueFrom(this.http.get<Card[]>(apiUrl('/api/cards'), { headers }));
+      const cards = await firstValueFrom(this.http.get<Card[]>('/api/cards', { headers }));
       if (generation !== this.generation) return;
       this.cards.set(cards);
       this.state.set('ready');
@@ -78,7 +77,7 @@ export class CardService {
     try {
       const headers = await this.authHeaders();
       if (generation !== this.generation) return false;
-      const url = apiUrl(`/api/cards/${encodeURIComponent(photoId)}`);
+      const url = `/api/cards/${encodeURIComponent(photoId)}`;
       const saved = await firstValueFrom(this.http.put<Card>(url, update, { headers }));
       if (generation !== this.generation) return false;
       this.cards.update((cards) => cards.map((card) => (card.photoId === photoId ? saved : card)));

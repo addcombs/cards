@@ -1,6 +1,6 @@
 # Uploads the card photos in ..\photos (git-ignored; PSA's image downloads, named like
 # psa-order-24221025-r01-i01-94481237-1992 TOPPS GOLD 141 MICHAEL JORDAN-Front-<id>.jpg) to the photo
-# bucket from create-photos-bucket.ps1:
+# bucket (project.json fileBuckets.photos, made by provision.ps1):
 #   images/photos/<photo id>/front.jpg, back.jpg  1000 px tall, served at https://<domain>/images/photos/
 #   images/photos/<photo id>/front-zoom.jpg, ...  up to 2400 px tall, for the UI's zoom dialog
 #   originals/<photo id>/front.jpg, back.jpg      as downloaded, not served
@@ -16,8 +16,8 @@ $zoomHeight = 2400
 
 if (-not (Test-Path $source)) { Fail "no photos folder at $source." }
 $account = Invoke-AwsCli @('sts','get-caller-identity','--query','Account','--output','text')
-$bucket = PhotosBucket $account
-if ($null -eq (Invoke-AwsCli @('s3api','head-bucket','--bucket',$bucket) -AllowFail -Quiet)) { Fail "bucket $bucket not found. Run scripts\create-photos-bucket.ps1 first." }
+$bucket = FileBucket 'photos' $account
+if ($null -eq (Invoke-AwsCli @('s3api','head-bucket','--bucket',$bucket) -AllowFail -Quiet)) { Fail "bucket $bucket not found. Run scripts\provision.ps1 first." }
 
 # --- pair the fronts and backs by photo ID ---
 $cards = @{}
@@ -67,4 +67,4 @@ Invoke-AwsCli @('s3','sync',(Join-Path $out 'photos'),"s3://$bucket/images/photo
 Invoke-AwsCli @('s3','sync',(Join-Path $out 'originals'),"s3://$bucket/originals",'--delete','--content-type','image/jpeg','--only-show-errors') | Out-Null
 Step "uploaded to s3://$bucket/images/photos and /originals"
 Step "DONE. e.g. https://$domain/images/photos/$(($cards.Keys | Sort-Object)[0])/front.jpg"
-Read-Host 'Press Enter to close'
+Wait-Close

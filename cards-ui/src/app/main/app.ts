@@ -23,7 +23,6 @@ import { CardEditComponent } from './cards/card-edit';
 import { CardZoomComponent, CardZoomData } from './cards/card-zoom';
 import { FullTextTooltipDirective } from './cards/full-text-tooltip';
 import { PanelStateService } from './cards/panel-state.service';
-import { apiUrl } from '../api-url';
 import { APP_DISPLAY_NAME, DEVELOPER_NAME } from './app-name';
 import { AboutDialogComponent } from './about/about-dialog';
 import { ToolbarBackgroundComponent } from '../theme/toolbar-background';
@@ -72,7 +71,7 @@ function byGrade(cards: Card[]): GradeGroup[] {
 export class App {
   protected readonly appName = APP_DISPLAY_NAME;
   protected readonly developerName = DEVELOPER_NAME;
-  protected readonly apiDocsUrl = apiUrl('/swagger-ui.html');
+  protected readonly apiDocsUrl = '/swagger-ui.html';
   protected readonly theme = inject(ThemeService);
   protected readonly auth = inject(AuthService);
   protected readonly account = inject(AccountService);

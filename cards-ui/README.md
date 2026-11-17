@@ -33,7 +33,7 @@ npm start
 
 Open `http://localhost:4200/`. The local `/api/account`, `/actuator/health`,
 `/swagger-ui`, and `/v3/api-docs` proxies target `http://localhost:8080` in `proxy.conf.json`
-(`src/app/api-url.ts` keeps API paths relative in development and prefixes the API host in production).
+(production builds use the same relative paths, which the site's CloudFront distribution sends to the API).
 The toolbar's ⋮ menu links to the backend's Swagger UI and opens an About dialog.
 A compatible backend must be
 running on port 8080; changing the proxy port is not a substitute for starting it.
@@ -70,7 +70,7 @@ To run the full stack locally, run `..\scripts\start-all.ps1` in PowerShell: it 
 dependencies, builds and tests both apps, then starts the API on port 8080 and this
 UI on port 4200 (logs in `..\logs`).
 
-Until `..\scripts\create-cognito-pool.ps1` has run, the app displays an authentication setup notice. Build and
+Until `..\scripts\provision.ps1` has run, the app displays an authentication setup notice. Build and
 unit test success do not verify live authentication or account integration;
 verify those flows in a browser after configuring the services.
 
@@ -83,9 +83,9 @@ The backend returns 404 for a missing account, 401 for invalid authentication,
 and 409 for conflicting account identity.
 
 The health endpoint must be publicly readable to the app without an access
-token. The development proxy does not apply to production builds: they call the API at
-its own host (`apiUrl` in `project.settings.ts`, e.g. `https://api.cards.acombs-dev.com`),
-which must allow this app's origin through CORS. Keep credentials on the backend, never in the browser app, and do not expose
+token. The app calls the API with relative paths: the development proxy forwards them to the
+local API, and in production the site's CloudFront distribution sends `/api/*`, `/actuator/*`
+and the API docs to the API, so the two share an origin and need no CORS. Keep credentials on the backend, never in the browser app, and do not expose
 unauthenticated legacy backend endpoints to untrusted clients.
 
 ## Build and tests

@@ -1,9 +1,10 @@
 # Builds and tests the UI and the API on every push and pull request, as scripts\start-all.ps1 does
 # locally. Pushes to main that pass, and runs started by hand on main (Actions > CI > Run workflow,
-# e.g. for a new app's first deploy), then deploy both, once scripts\create-github-deploy-role.ps1
-# has made the deploy role and its ARN is the repository's Actions variable AWS_DEPLOY_ROLE_ARN.
+# e.g. for a new app's first deploy), then deploy both, once scripts\provision.ps1 has made the
+# deploy role and set its ARN as the repository's Actions variable AWS_DEPLOY_ROLE_ARN.
 # The UI deploy also gives the Cognito sign-in page the theme colors. The deploy publishes new API
-# code only; the function's settings stay as deploy-api.ps1 set them, so no secrets are stored in GitHub.
+# code only; the function's settings stay as provision.ps1 set them, so no secrets are stored in GitHub.
+# A site with "accounts": false in project.json has no sign-in, so its deploys skip the Cognito steps.
 name: CI
 
 on:
@@ -69,8 +70,24 @@ jobs:
           cache: maven
       - run: mvn --batch-mode --no-transfer-progress verify
 
+  # The CDK stack is deployed from scripts\provision.ps1, not from here; this only type-checks it.
+  infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+
   deploy-api:
-    needs: [ui, api]
+    needs: [ui, api, infra]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
     runs-on: ubuntu-latest
     permissions:
@@ -93,6 +110,7 @@ jobs:
         run: |
           echo "APP=$(jq -r .name ../project.json)" >> "$GITHUB_ENV"
           echo "AWS_REGION=$(jq -r .aws.region ../project.json)" >> "$GITHUB_ENV"
+          echo "ACCOUNTS=$(jq -r '.accounts != false' ../project.json)" >> "$GITHUB_ENV"
       - uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
@@ -112,21 +130,23 @@ jobs:
           aws lambda update-alias --function-name "$APP-api" --name live --function-version "$version" \
             --query AliasArn --output text
           echo "::notice::API version $version is live."
+      # The site's distribution sends /api/* and /actuator/* to the function.
       - name: Check the live API
         run: |
           domain=$(jq -r .domain.host ../project.json)
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 "https://api.$domain/actuator/health"
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 "https://$domain/actuator/health"
+          [ "$ACCOUNTS" = true ] || exit 0
           # The health check is public, so it misses failures in the security chain (such as a 502 on
           # every signed-in request); without a token these must reach it and be refused with 401.
-          for request in "GET /api/cards" "PUT /api/cards/0"; do
+          for request in "GET /api/account" "PUT /api/account"; do
             status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
-              --request "${request% *}" "https://api.$domain${request#* }")
+              --request "${request% *}" "https://$domain${request#* }")
             echo "$request without a token: $status"
             [ "$status" = 401 ] || { echo "::error::$request without a token returned $status, not 401."; exit 1; }
           done
 
   deploy-ui:
-    needs: [ui, api]
+    needs: [ui, api, infra]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
     runs-on: ubuntu-latest
     permissions:
@@ -137,14 +157,18 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v5
-      # The Cognito IDs stay empty until create-cognito-pool.ps1 fills them in.
-      - name: Check the UI settings have the Cognito IDs
+      - name: Read project.json
         run: |
-          grep -qE "userPoolId: '[^']+'" cards-ui/src/app/project.settings.ts \
-            || { echo "::error::cards-ui/src/app/project.settings.ts has no Cognito IDs. Run scripts\\create-cognito-pool.ps1 and commit the file."; exit 1; }
           echo "APP=$(jq -r .name project.json)" >> "$GITHUB_ENV"
           echo "DOMAIN=$(jq -r .domain.host project.json)" >> "$GITHUB_ENV"
           echo "AWS_REGION=$(jq -r .aws.region project.json)" >> "$GITHUB_ENV"
+          echo "ACCOUNTS=$(jq -r '.accounts != false' project.json)" >> "$GITHUB_ENV"
+      # new-app.ps1 leaves the Cognito IDs empty until provision.ps1 fills them in.
+      - name: Check the UI settings have the Cognito IDs
+        if: env.ACCOUNTS == 'true'
+        run: |
+          grep -qE "userPoolId: '[^']+'" cards-ui/src/app/project.settings.ts \
+            || { echo "::error::cards-ui/src/app/project.settings.ts has no Cognito IDs. Run scripts\\provision.ps1."; exit 1; }
       - uses: actions/download-artifact@v4
         with:
           name: ui
@@ -154,27 +178,35 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
       # Hashed assets can be cached for a year; index.html must always be re-checked. The files from
-      # public/ (images/ and favicon.ico) keep their names when they change, so they are cached for an
-      # hour and CloudFront's copies are dropped on each deploy.
+      # public/ (e.g. logos/ and favicon.ico, whatever the UI's public/ holds) keep their names when
+      # they change, so they are cached for an hour and CloudFront's copies are dropped on each deploy.
       - name: Upload to S3 and refresh CloudFront
         run: |
           dist=$(dirname dist/*/browser/index.html)
           account=$(aws sts get-caller-identity --query Account --output text)
           bucket="$APP-ui-$account"
-          aws s3 sync "$dist" "s3://$bucket" --delete --exclude index.html --exclude 'images/*' --exclude favicon.ico \
+          # One pattern and one invalidation path per top-level entry of public/: name/* for a folder.
+          excludes=(); includes=(); paths=(/index.html /)
+          for entry in "$APP-ui"/public/*; do
+            name=$(basename "$entry")
+            if [ -d "$entry" ]; then pattern="$name/*"; else pattern="$name"; fi
+            excludes+=(--exclude "$pattern"); includes+=(--include "$pattern"); paths+=("/$pattern")
+          done
+          aws s3 sync "$dist" "s3://$bucket" --delete --exclude index.html "${excludes[@]}" \
             --cache-control 'public,max-age=31536000,immutable' --only-show-errors
-          aws s3 sync "$dist" "s3://$bucket" --delete --exclude '*' --include 'images/*' --include favicon.ico \
+          aws s3 sync "$dist" "s3://$bucket" --delete --exclude '*' "${includes[@]}" \
             --cache-control 'public,max-age=3600' --only-show-errors
           aws s3 cp "$dist/index.html" "s3://$bucket/index.html" --cache-control no-cache \
             --content-type text/html --only-show-errors
           dist_id=$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Aliases.Items && contains(Aliases.Items, '$DOMAIN')].Id | [0]" --output text)
-          id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths /index.html / '/images/*' /favicon.ico \
+          id=$(aws cloudfront create-invalidation --distribution-id "$dist_id" --paths "${paths[@]}" \
             --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$dist_id" --id "$id"
       # So the sign-in page always has the site's colors: config/managed-login-branding.json filled in
       # from the theme palettes by scripts/managed-login-style.ps1.
       - name: Brand the sign-in page with the theme colors
+        if: env.ACCOUNTS == 'true'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -188,9 +220,12 @@ jobs:
           $settings = Get-Content cards-ui/src/app/project.settings.ts -Raw
           $pool = [regex]::Match($settings, "userPoolId: '([^']+)'").Groups[1].Value
           $client = [regex]::Match($settings, "userPoolClientId: '([^']+)'").Groups[1].Value
-          # The app's logo above the sign-in form, in light and dark mode. Cognito refuses an SVG whose
-          # root has role or aria-label, so those are dropped from the uploaded copy.
-          $svg = [System.IO.File]::ReadAllText("$PWD/cards-ui/public/images/logos/logo.svg") -replace '\s(role|aria-label)="[^"]*"', ''
+          # The app's logo above the sign-in form, in light and dark mode: the first logo.svg in the UI's
+          # public/ (public/logos/logo.svg in the template). Cognito refuses an SVG whose root has role
+          # or aria-label, so those are dropped from the uploaded copy.
+          $logoFile = Get-ChildItem cards-ui/public -Recurse -Filter logo.svg | Sort-Object FullName | Select-Object -First 1
+          if (-not $logoFile) { throw 'No logo.svg in cards-ui/public for the sign-in page.' }
+          $svg = [System.IO.File]::ReadAllText($logoFile.FullName) -replace '\s(role|aria-label)="[^"]*"', ''
           $logo = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($svg))
           $assets = Join-Path $env:RUNNER_TEMP 'managed-login-assets.json'
           [System.IO.File]::WriteAllText($assets, (ConvertTo-Json -Compress @(

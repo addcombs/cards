@@ -19,4 +19,4 @@ $username = Invoke-AwsCli @('cognito-idp','admin-get-user','--user-pool-id',$poo
 if (-not $username) { Fail "No user with email $Email in pool $poolId. Register in the app first." }
 Invoke-AwsCli @('cognito-idp','admin-add-user-to-group','--user-pool-id',$poolId,'--username',$username,'--group-name',$group) | Out-Null
 Step "DONE. $Email is in $group; sign out of the app and back in to edit cards"
-Read-Host 'Press Enter to close'
+Wait-Close

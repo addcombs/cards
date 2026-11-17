@@ -4,6 +4,21 @@
   "developerName": "Adam Combs",
   "aws": { "profile": "default", "region": "us-east-2" },
   "domain": { "apex": "acombs-dev.com", "host": "cards.acombs-dev.com" },
-  "cognito": { "domainPrefix": "cards-acombs" },
-  "theme": { "primary": "#DC143C" }
+  "cognito": { "domainPrefix": "cards-acombs", "autoConfirm": true },
+  "fileBuckets": { "photos": "images/photos" },
+  "theme": { "primary": "#DC143C" },
+  "template": {
+    "keep": [
+      ".gitignore",
+      "cards-api/src/main/java/com/acombsdev/cards/security/AccountSecurityConfig.java",
+      "cards-api/src/main/java/com/acombsdev/cards/user/ApiExceptionHandler.java",
+      "cards-ui/src/index.html",
+      "cards-ui/src/styles.scss",
+      "cards-ui/src/app/app.config.ts",
+      "cards-ui/src/app/auth/auth.service.ts",
+      "cards-ui/src/app/auth/auth.service.spec.ts",
+      "cards-ui/src/app/main/app-name.spec.ts",
+      "cards-ui/src/app/main/brightness-control.scss"
+    ]
+  }
 }

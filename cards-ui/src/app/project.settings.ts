@@ -4,7 +4,6 @@ export const PROJECT_SETTINGS = {
   appName: 'cards',
   displayName: 'Combs\' Corner Cards',
   developerName: 'Adam Combs',
-  apiUrl: 'https://api.cards.acombs-dev.com',
   photosUrl: 'https://cards.acombs-dev.com/images/photos/',
   auth: {
     userPoolId: 'us-east-2_tbL7X0zuE',

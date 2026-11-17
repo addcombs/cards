@@ -70,8 +70,8 @@ With the API running locally, open Swagger UI at
 `http://localhost:8080/swagger-ui.html` or retrieve the generated OpenAPI JSON
 at `http://localhost:8080/v3/api-docs`. Documentation covers `/api/account`
 and `/api/cards` only. In Swagger UI, use **Authorize** with a valid Cognito ID token to call it.
-Both documentation endpoints are public; when deployed they are served at the API's own
-host, e.g. `https://api.cards.acombs-dev.com/swagger-ui.html`.
+Both documentation endpoints are public; when deployed the site's CloudFront distribution
+sends them to the API, e.g. `https://cards.acombs-dev.com/swagger-ui.html`.
 
 | Method | Path | Behavior |
 |---|---|---|
