@@ -4,5 +4,3 @@ target/
 .env
 .env.*
 *.log
-lambda-env.json
-trust.json
