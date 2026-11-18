@@ -32,5 +32,4 @@ new AppStack(app, project.name, {
   certificateArn: context('certificateArn'),
   hostedZoneId: context('hostedZoneId'),
   githubSubject: context('githubSubject'),
-  importOnly: app.node.tryGetContext('importOnly') === 'true',
 });

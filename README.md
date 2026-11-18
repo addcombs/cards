@@ -8,8 +8,7 @@ for details.
 
 `project.json` holds the only per-app settings: name, display name, AWS profile and region, domain,
 Cognito domain prefix (with `autoConfirm`, so new accounts need no emailed code), the photo bucket
-(`fileBuckets.photos`) and theme colors. `template.keep` lists the files this app keeps as its own
-when it is brought up to date with `template-0`.
+(`fileBuckets.photos`) and theme colors.
 
 `infra\` is a CDK app (TypeScript) with every AWS resource the app runs on: the user pool, client,
 sign-in domain and pre-sign-up trigger, the UI, photo and deploy buckets, the API's function, `live`
@@ -26,8 +25,8 @@ stored in GitHub; after changing `.env`, `project.json` or `infra\`, run `script
 
 ## Set up
 
-The app was created from `template-0`; make further apps from that template, not from this one, and
-bring this one up to date with the template's `scripts\sync-from-template.ps1 -Target ..\cards`.
+The app was created from `template-0`; make further sites from that template, not from this
+one. This one is independent of it.
 
 1. `scripts\provision.ps1` - the GitHub repository's deploy role, the stack, the UI's settings, the
    database migrations and the first deploy

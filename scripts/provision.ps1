@@ -12,12 +12,8 @@
 # database login reaches the function only from here, never from GitHub).
 #   -Visibility private   for a new repository (default public)
 #   -SkipDeploy           stops before step 6
-#   -ImportExisting       one-off, for an app first set up by the old scripts: adopts its user pool,
-#                         client, sign-in domain, buckets, roles and functions into the new stack
-#                         (users and files stay), then moves its host to the new distribution
-#                         (down 5-15 minutes); afterwards scripts\remove-old-setup.ps1 cleans up
 # Log: logs\provision.log (cdk output in logs\cdk-deploy.log)
-param([ValidateSet('public', 'private')][string]$Visibility = 'public', [switch]$SkipDeploy, [switch]$ImportExisting)
+param([ValidateSet('public', 'private')][string]$Visibility = 'public', [switch]$SkipDeploy)
 . "$PSScriptRoot\common.ps1" -LogName 'provision.log' -Title 'provision'
 $env:SETUP_NO_PAUSE = '1'
 $infra = Join-Path $root 'infra'
@@ -95,87 +91,6 @@ if ($null -eq (Invoke-AwsCli @('cloudformation','describe-stacks','--stack-name'
   Step "bootstrapping the CDK in $awsRegion (once per account and region)..."
   Invoke-Npm @($cdk + @('bootstrap', "aws://$account/$awsRegion") + $cdkArgs) *>&1 | ForEach-Object { "$_" } | Set-Content $deployLog
   if ($LASTEXITCODE -ne 0) { Pop-Location; Fail 'cdk bootstrap failed; see logs\cdk-deploy.log' }
-}
-if ($ImportExisting) {
-  # A failed import leaves an empty stack behind (its resources are kept); clear it so this can retry.
-  $status = Invoke-AwsCli @('cloudformation','describe-stacks','--stack-name',$app,'--query','Stacks[0].StackStatus','--output','text') -AllowFail -Quiet
-  if ($status -in 'REVIEW_IN_PROGRESS', 'IMPORT_ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE') {
-    Invoke-AwsCli @('cloudformation','delete-stack','--stack-name',$app) | Out-Null
-    Invoke-AwsCli @('cloudformation','wait','stack-delete-complete','--stack-name',$app) | Out-Null
-    Step "empty $app stack from a failed import ($status) removed"
-  }
-}
-if ($ImportExisting -and $null -eq (Invoke-AwsCli @('cloudformation','describe-stacks','--stack-name',$app) -AllowFail -Quiet)) {
-  # --- one-off: adopt what the old setup scripts made, then free the host for the new distribution ---
-  $poolId = $null; $clientId = $null
-  if ($accounts) {
-    $poolId = Invoke-AwsCli @('cognito-idp','list-user-pools','--max-results','60','--query',"UserPools[?Name=='$app-users'].Id | [0]",'--output','text')
-    if (-not $poolId -or $poolId -eq 'None') { Pop-Location; Fail "no user pool named $app-users to import." }
-    $clientId = Invoke-AwsCli @('cognito-idp','list-user-pool-clients','--user-pool-id',$poolId,'--query',"UserPoolClients[?ClientName=='$app-ui'].ClientId | [0]",'--output','text')
-  }
-  $fnArn = Invoke-AwsCli @('lambda','get-function','--function-name',"$app-api",'--query','Configuration.FunctionArn','--output','text')
-  # Each resource the import-only template has, by its construct path, and how CloudFormation finds it.
-  $ids = [ordered]@{
-    'Users' = @{ UserPoolId = $poolId }
-    'Users/Ui' = @{ UserPoolId = $poolId; ClientId = $clientId }
-    'Users/SignIn' = @{ UserPoolId = $poolId; Domain = $project.cognito.domainPrefix }
-    'UiBucket' = @{ BucketName = "$app-ui-$account" }
-    'DeployBucket' = @{ BucketName = "$app-deploy-$account" }
-    'ApiRole' = @{ RoleName = "$app-api-lambda" }
-    'Api' = @{ FunctionName = "$app-api" }
-    'Live' = @{ AliasArn = "${fnArn}:live" }
-    'LiveUrl' = @{ FunctionArn = "${fnArn}:live" }
-    'GitHubDeploy' = @{ RoleName = "$app-github-deploy" }
-    'AutoConfirm' = @{ FunctionName = "$app-auto-confirm" }
-    'AutoConfirmRole' = @{ RoleName = "$app-auto-confirm-lambda" }
-  }
-  foreach ($name in $fileBuckets.Keys) {
-    $bucket = FileBucket $name $account
-    if ($null -eq (Invoke-AwsCli @('s3api','head-bucket','--bucket',$bucket) -AllowFail -Quiet)) { Pop-Location; Fail "no bucket $bucket to import for fileBuckets.$name." }
-    $ids["Files-$name"] = @{ BucketName = $bucket }
-  }
-  $importOut = Join-Path $infra 'cdk.out.import'
-  Invoke-Npm @($cdk + @('synth', '-q', '-o', $importOut, '-c', 'importOnly=true') + $cdkArgs) *>&1 | ForEach-Object { "$_" } | Set-Content $deployLog
-  if ($LASTEXITCODE -ne 0) { Pop-Location; Fail 'cdk synth (import) failed; see logs\cdk-deploy.log' }
-  $template = Get-Content (Join-Path $importOut "$app.template.json") -Raw | ConvertFrom-Json
-  $mapping = [ordered]@{}
-  foreach ($r in $template.Resources.PSObject.Properties) {
-    $path = $r.Value.Metadata.'aws:cdk:path'
-    if (-not $path) { continue }
-    $key = ($path -replace "^$([regex]::Escape($app))/", '') -replace '/Resource$', ''
-    if (-not $ids.Contains($key)) { Pop-Location; Fail "no identifier for $path in the import template." }
-    $mapping[$r.Name] = $ids[$key]
-  }
-  $mappingFile = Write-Json (Join-Path $logs 'cdk-import-mapping.json') $mapping
-  Step "importing $($mapping.Count) existing resources into the $app stack$(if ($poolId) { " (user pool $poolId)" })..."
-  Invoke-Npm @($cdk + @('import', '--resource-mapping', $mappingFile, '--force', '-c', 'importOnly=true') + $cdkArgs) *>&1 |
-    ForEach-Object { "$_" } | Add-Content $deployLog
-  if ($LASTEXITCODE -ne 0) { Pop-Location; Fail 'cdk import failed; see logs\cdk-deploy.log' }
-  Remove-Item $importOut -Recurse -Force
-  Step 'imported'
-
-  # The old UI distribution keeps working without its alias until remove-old-setup.ps1 deletes it; the
-  # host is down from here until the new distribution is deployed (5-15 minutes).
-  $oldId = Invoke-AwsCli @('cloudfront','list-distributions','--query',"DistributionList.Items[?Aliases.Items && contains(Aliases.Items, '$domain')].Id | [0]",'--output','text')
-  if ($oldId -and $oldId -ne 'None') {
-    $current = Invoke-AwsCli @('cloudfront','get-distribution-config','--id',$oldId,'--output','json') | ConvertFrom-Json
-    $current.DistributionConfig.Aliases = [ordered]@{ Quantity = 0 }
-    $configFile = Write-Json (Join-Path $logs 'old-distribution-config.json') $current.DistributionConfig
-    Invoke-AwsCli @('cloudfront','update-distribution','--id',$oldId,'--if-match',$current.ETag,'--distribution-config',"file://$configFile",'--query','Distribution.Status','--output','text') | Out-Null
-    Step "old distribution $oldId no longer answers for $domain"
-  }
-  $zoneRecords = Invoke-AwsCli @('route53','list-resource-record-sets','--hosted-zone-id',$zoneId,'--start-record-name',"$domain.",'--output','json') | ConvertFrom-Json
-  $old = @($zoneRecords.ResourceRecordSets | Where-Object { $_.Name -eq "$domain." -and $_.Type -in 'A', 'AAAA', 'CNAME' })
-  if ($old) {
-    $batch = Write-Json (Join-Path $logs 'dns-change.json') @{ Changes = @($old | ForEach-Object { @{ Action = 'DELETE'; ResourceRecordSet = $_ } }) }
-    Invoke-AwsCli @('route53','change-resource-record-sets','--hosted-zone-id',$zoneId,'--change-batch',"file://$batch") | Out-Null
-    Step "old DNS records for $domain removed ($(($old.Type) -join ', '))"
-  }
-  # The stack writes the UI's and file buckets' policies itself (for the new distribution); S3 allows only one.
-  foreach ($bucket in @("$app-ui-$account") + @($fileBuckets.Keys | ForEach-Object { FileBucket $_ $account })) {
-    Invoke-AwsCli @('s3api','delete-bucket-policy','--bucket',$bucket) | Out-Null
-    Step "old policy on $bucket removed (it let only the old distribution read)"
-  }
 }
 Step 'deploying the stack (a new CloudFront distribution takes 5-15 minutes)...'
 $outputs = Join-Path $logs 'cdk-outputs.json'

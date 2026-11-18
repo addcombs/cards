@@ -4,8 +4,8 @@
 //
 // Optional, in project.json:
 //   "accounts": false     a public site: no Cognito sign-in, no database login and no account API
-//                         settings (the site leaves out the template's account code; see
-//                         scripts\sync-from-template.ps1)
+//                         settings (remove the sign-in and account code
+//                         from such a site)
 //   "fileBuckets": { "photos": "images/photos" }
 //                         a private bucket per entry, <app>-<name>-<account>, served by the site's
 //                         distribution at /<path>/*. Its files are uploaded apart from the UI, whose
@@ -14,9 +14,6 @@
 // Code versions belong to CI: the `live` alias starts at $LATEST, and each deploy from main
 // publishes a version (SnapStart's snapshot) and moves the alias to it. CloudFormation only touches
 // the alias again if its definition here changes, so a later `cdk deploy` leaves it where CI put it.
-//
-// importOnly (cdk import of an app first set up by the old scripts) leaves out what cannot be
-// imported, so the first pass adopts only existing resources; a normal deploy then adds the rest.
 import { Annotations, CfnOutput, CfnParameter, Duration, Fn, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
@@ -54,7 +51,6 @@ export interface AppStackProps extends StackProps {
   hostedZoneId: string;
   /** GitHub's token subject for pushes to main, repo:<owner>@<id>/<repo>@<id>:ref:refs/heads/main. */
   githubSubject: string;
-  importOnly: boolean;
 }
 
 // Paths the API answers; everything else is the UI.
@@ -68,7 +64,7 @@ export class AppStack extends Stack {
 
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
-    const { project, importOnly } = props;
+    const { project } = props;
     const app = project.name;
     const host = project.domain.host;
     const urls = ['http://localhost:4200/', `https://${host}/`];
@@ -83,13 +79,12 @@ export class AppStack extends Stack {
     }
 
     // --- sign-in ---
-    const signIn = accounts ? this.signIn(project, urls, importOnly, keep) : undefined;
+    const signIn = accounts ? this.signIn(project, urls, keep) : undefined;
 
     // --- buckets ---
     const uiBucket = keep(new s3.Bucket(this, 'UiBucket', { bucketName: `${app}-ui-${this.account}`, blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL }));
     // CI uploads each API build here for update-function-code.
     const deployBucket = keep(new s3.Bucket(this, 'DeployBucket', { bucketName: `${app}-deploy-${this.account}`, blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL }));
-    // Construct IDs Files-<name>; provision.ps1 -ImportExisting finds them by these.
     const files = fileBuckets.map(([name, path]) => ({
       path,
       bucket: keep(new s3.Bucket(this, `Files-${name}`, { bucketName: `${app}-${name}-${this.account}`, blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL })),
@@ -97,10 +92,8 @@ export class AppStack extends Stack {
 
     // --- API ---
     // The database login comes from the API's .env as NoEcho parameters, so it is in no template.
-    // cdk import takes no parameters; importing leaves the function's settings as they are, and the
-    // deploy straight after sets them.
-    const secret = (name: string) => new CfnParameter(this, name, { type: 'String', noEcho: true }).valueAsString;
-    const dbLogin: Record<string, string> = importOnly || !accounts ? {} : {
+        const secret = (name: string) => new CfnParameter(this, name, { type: 'String', noEcho: true }).valueAsString;
+    const dbLogin: Record<string, string> = !accounts ? {} : {
       DATABASE_URL: secret('DatabaseUrl'),
       DATABASE_USERNAME: secret('DatabaseUsername'),
       DATABASE_PASSWORD: secret('DatabasePassword'),
@@ -161,9 +154,8 @@ export class AppStack extends Stack {
       new CfnOutput(this, 'Issuer', { value: signIn.pool.userPoolProviderUrl });
     }
     new CfnOutput(this, 'DeployRoleArn', { value: deployRole.roleArn });
-    if (importOnly) return;
 
-    // --- what the old scripts' resources could not be imported as ---
+    // --- the function URL's permissions ---
     // Function URLs with no auth need both permissions.
     new lambda.CfnPermission(this, 'LiveUrlInvokeUrl', {
       functionName: `${api.functionArn}:live`, action: 'lambda:InvokeFunctionUrl', principal: '*', functionUrlAuthType: 'NONE',
@@ -238,7 +230,7 @@ export class AppStack extends Stack {
   }
 
   /** The user pool, its UI client and sign-in domain, and the optional auto-confirm trigger. */
-  private signIn(project: Project, urls: string[], importOnly: boolean, keep: Keep) {
+  private signIn(project: Project, urls: string[], keep: Keep) {
     const app = project.name;
     const cognitoSettings = project.cognito!;
     const autoConfirm = cognitoSettings.autoConfirm
@@ -277,7 +269,7 @@ export class AppStack extends Stack {
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       userVerification: { emailStyle: cognito.VerificationEmailStyle.CODE, emailSubject: 'Your verification code', emailBody: 'Your verification code is {####}. ' },
       mfa: cognito.Mfa.OFF,
-      lambdaTriggers: autoConfirm && !importOnly ? { preSignUp: autoConfirm } : undefined,
+      lambdaTriggers: autoConfirm ? { preSignUp: autoConfirm } : undefined,
     }));
     const client = keep(pool.addClient('Ui', {
       userPoolClientName: `${app}-ui`,

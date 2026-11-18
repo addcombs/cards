@@ -111,22 +111,6 @@ function Get-SharedCertificate {
   return $arn
 }
 
-# The same rule as formatDisplayName in the UI's app-name.ts: cards -> Cards.
-function DisplayName($s) {
-  (($s -replace '[^\p{L}\p{N}\s]', ' ') -split '\s+' | Where-Object { $_ } |
-    ForEach-Object { $_.Substring(0, 1).ToUpperInvariant() + $_.Substring(1) }) -join ' '
-}
-# Replaces every key of $map found in $text in one pass, so a new value is never replaced again.
-# With -IgnoreCase the keys must be upper case. Used by new-app.ps1 and sync-from-template.ps1.
-function Replace-All($text, $map, [switch]$IgnoreCase) {
-  if (-not $map.Count) { return $text }
-  $pattern = ($map.Keys | Sort-Object Length -Descending | ForEach-Object { [regex]::Escape($_) }) -join '|'
-  if ($IgnoreCase) {
-    return [regex]::Replace($text, $pattern, { param($m) $map[$m.Value.ToUpperInvariant()] }, 'IgnoreCase')
-  }
-  return [regex]::Replace($text, $pattern, { param($m) $map[$m.Value] })
-}
-
 # The GitHub CLI: on PATH, or where its installer puts it.
 $gh = (Get-Command gh.exe -ErrorAction SilentlyContinue).Source
 if (-not $gh -and (Test-Path "$env:ProgramFiles\GitHub CLI\gh.exe")) { $gh = "$env:ProgramFiles\GitHub CLI\gh.exe" }
