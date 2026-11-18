@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { firstValueFrom } from 'rxjs';
 
@@ -18,7 +18,7 @@ export interface AccountUpdate {
 
 type AccountState = 'idle' | 'loading' | 'ready' | 'missing' | 'error';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AccountService {
   private readonly http = inject(HttpClient);
   private generation = 0;

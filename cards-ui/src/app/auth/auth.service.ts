@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { Amplify } from 'aws-amplify';
 import { fetchAuthSession, signInWithRedirect, signOut } from 'aws-amplify/auth';
 import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
@@ -9,7 +9,7 @@ import { AUTH_CONFIG, isAuthConfigured } from './auth.config';
 type AuthStatus = 'loading' | 'notConfigured' | 'signedOut' | 'signedIn' | 'invalid';
 const NONCE_KEY = `${APP_NAME}.auth.nonce`;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AuthService {
   readonly status = signal<AuthStatus>('loading');
   readonly email = signal('');

@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, switchMap, timer } from 'rxjs';
 
 type ApiStatus = 'checking' | 'up' | 'down';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ApiStatusService {
   private readonly http = inject(HttpClient);
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +15,6 @@ const required = [Validators.required, Validators.pattern(/\S/)];
   imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule],
   templateUrl: './card-edit.html',
   styleUrl: './card-edit.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardEditComponent implements OnInit {
   protected readonly sports = ['Baseball', 'Basketball', 'Football', 'Hockey'];

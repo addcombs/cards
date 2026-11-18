@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { firstValueFrom } from 'rxjs';
 import { PROJECT_SETTINGS } from '../../project.settings';
@@ -37,7 +37,7 @@ export function psaCertUrl(certNumber: string): string {
   return `https://www.psacard.com/cert/${encodeURIComponent(certNumber)}/psa`;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CardService {
   private readonly http = inject(HttpClient);
   private generation = 0;

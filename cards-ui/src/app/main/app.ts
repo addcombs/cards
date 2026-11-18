@@ -1,5 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -63,10 +64,9 @@ function byGrade(cards: Card[]): GradeGroup[] {
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatExpansionModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
+  imports: [NgOptimizedImage, MatButtonModule, MatExpansionModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule, MatTabsModule, MatToolbarModule, MatTooltipModule, FullTextTooltipDirective, RegistrationComponent, ToolbarBackgroundComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss', './brightness-control.scss', './toolbar.scss', './sport-cards.scss', './panels.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   protected readonly appName = APP_DISPLAY_NAME;

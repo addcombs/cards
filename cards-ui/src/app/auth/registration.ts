@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,10 +13,9 @@ type RegistrationStep = 'register' | 'confirm' | 'complete';
   imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './registration.html',
   styleUrl: './registration.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegistrationComponent {
-  @Output() readonly backToSignIn = new EventEmitter<void>();
+  readonly backToSignIn = output<void>();
 
   protected readonly appName = APP_DISPLAY_NAME;
   protected readonly step = signal<RegistrationStep>('register');

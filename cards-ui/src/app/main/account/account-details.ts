@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,6 @@ import { AccountService, AccountUpdate } from './account.service';
   imports: [ReactiveFormsModule, TextFieldModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
   templateUrl: './account-details.html',
   styleUrl: './account-details.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountDetailsComponent implements OnInit {
   protected readonly auth = inject(AuthService);

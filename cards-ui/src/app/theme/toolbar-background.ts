@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 interface PixelLayer {
   tone: 'primary' | 'secondary';
@@ -90,7 +90,6 @@ const LAYERS = buildPixelLayers();
       fill: var(--mat-sys-secondary);
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarBackgroundComponent {
   protected readonly layers = LAYERS;

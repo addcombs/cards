@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -24,7 +24,6 @@ const STEP = 1.5;
   imports: [MatButtonModule, MatButtonToggleModule, MatDialogModule, MatIconModule, MatTooltipModule],
   templateUrl: './card-zoom.html',
   styleUrl: './card-zoom.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardZoomComponent {
   protected readonly data = inject<CardZoomData>(MAT_DIALOG_DATA);

@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { APP_NAME } from '../app-name';
 
 export const PANEL_STATE_STORAGE_KEY = `${APP_NAME}.panels`;
@@ -8,7 +8,7 @@ export const PANEL_STATE_STORAGE_KEY = `${APP_NAME}.panels`;
  * Remembers which card panels the viewer opened or closed, by a key per panel, in this browser.
  * A panel the viewer has not touched keeps its default.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PanelStateService {
   private readonly document = inject(DOCUMENT);
   private readonly state = signal<Readonly<Record<string, boolean>>>(this.read());

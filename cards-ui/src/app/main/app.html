@@ -19,7 +19,7 @@
     } @else {
     <span class="auth-logo" aria-hidden="true">
       @for (sport of sports; track sport.label) {
-        <img [src]="sport.logo" alt="" width="96" height="96" [class.shown]="signInSport() === $index" />
+        <img [ngSrc]="sport.logo" alt="" width="96" height="96" [class.shown]="signInSport() === $index" />
       }
     </span>
     <h1 class="welcome-title">Welcome to {{ appName }}</h1>
@@ -69,10 +69,10 @@
     <mat-divider />
     <mat-nav-list class="site-links" aria-label="Other sites">
       <a mat-list-item href="https://www.psacard.com" target="_blank" rel="noopener">
-        <span matListItemTitle><img class="site-logo" src="images/logos/psa-logo.svg" alt="PSA (opens in a new tab)" /></span>
+        <span matListItemTitle><img class="site-logo" ngSrc="images/logos/psa-logo.svg" alt="PSA (opens in a new tab)" width="50" height="18" /></span>
       </a>
       <a mat-list-item href="https://www.ebay.com" target="_blank" rel="noopener">
-        <span matListItemTitle><img class="site-logo" src="images/logos/ebay-logo.svg" alt="eBay (opens in a new tab)" /></span>
+        <span matListItemTitle><img class="site-logo" ngSrc="images/logos/ebay-logo.svg" alt="eBay (opens in a new tab)" width="45" height="18" /></span>
       </a>
     </mat-nav-list>
   </mat-sidenav>
@@ -90,7 +90,7 @@
       >
         <mat-icon>menu</mat-icon>
       </button>
-      <img class="app-logo" [src]="sports[selectedSport()].logo" alt="" />
+      <img class="app-logo" [ngSrc]="sports[selectedSport()].logo" alt="" width="48" height="48" priority />
       <span class="app-title">{{ appName }}</span>
       <span class="spacer"></span>
       <div class="brightness-control" [hidden]="!brightnessOpen()">
@@ -212,9 +212,9 @@
                                             (click)="toggleFlip(card)"
                                           >
                                             <span class="card-faces">
-                                              <img class="card-face card-front" [src]="cardPhotoUrl(card, 'front')" loading="lazy" width="600" height="1000"
+                                              <img class="card-face card-front" [ngSrc]="cardPhotoUrl(card, 'front')" width="600" height="1000"
                                                 [alt]="'Front of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="flipped().has(card.photoId)" />
-                                              <img class="card-face card-back" [src]="cardPhotoUrl(card, 'back')" loading="lazy" width="600" height="1000"
+                                              <img class="card-face card-back" [ngSrc]="cardPhotoUrl(card, 'back')" width="600" height="1000"
                                                 [alt]="'Back of ' + card.player + ', ' + cardTitle(card)" [attr.aria-hidden]="!flipped().has(card.photoId)" />
                                             </span>
                                           </button>

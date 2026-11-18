@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { APP_NAME } from '../main/app-name';
 
 export const BRIGHTNESS_STORAGE_KEY = `${APP_NAME}.brightness`;
@@ -7,7 +7,7 @@ export const BRIGHTNESS_STORAGE_KEY = `${APP_NAME}.brightness`;
 /**
  * Persists surface brightness; the light/dark control profile follows from it.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly level = signal(this.resolveInitialBrightness());
